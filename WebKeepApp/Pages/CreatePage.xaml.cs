@@ -1,6 +1,6 @@
 using Microsoft.Maui.Controls;
 
-namespace WebKeepApp.pages;
+namespace WebKeepApp.Pages;
 
 public partial class CreatePage : ContentPage
 {

@@ -5,6 +5,7 @@ using WebKeepApp.Interfaces;
 using WebKeepApp.Services;
 using System.Threading.Tasks;
 using WebKeepApp.Utils;
+using WebKeepApp.Pages;
 
 namespace WebKeepApp
 {
@@ -14,18 +15,6 @@ namespace WebKeepApp
         {
             try 
             {
-                // Test debug message
-        DLogger.Log("Testing simple debug message");
-
-        // Test error message with exception
-        try
-        {
-            throw new InvalidOperationException("This is a test error");
-        }
-        catch (Exception ex)
-        {
-            DLogger.Log("An error occurred during testing", ex);
-        }
                 DLogger.Log("Starting CreateMauiApp");
                 var builder = MauiApp.CreateBuilder();
                 DLogger.Log("Builder created");
@@ -59,6 +48,12 @@ namespace WebKeepApp
                     throw;
                 }
 
+                // Register pages as services
+                builder.Services.AddTransient<LoginPage>();
+                builder.Services.AddTransient<MainPage>();
+                builder.Services.AddTransient<CreatePage>();
+                DLogger.Log("Pages registered as services");
+
                 // Initialize database
                 try 
                 {
@@ -69,7 +64,7 @@ namespace WebKeepApp
                     DLogger.Log("Starting database initialization");
                     Task.Run(async () => {
                         try {
-                            await databaseService.InitializeDatabase();
+                            await databaseService.InitializeDatabaseAsync();
                             DLogger.Log("Database initialization completed successfully");
                         }
                         catch (Exception ex) {
