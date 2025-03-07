@@ -1,21 +1,26 @@
+param(
+    [Alias('s')]
+    [switch]$System
+)
+
 function Format-LogEntry {
     param([Parameter(Mandatory=$true)][string]$LogEntry)
     
     # Define color scheme
     $colors = @{
-        Brackets   = 'White'    # Brackets, parentheses, and separators in subtle dark gray
-        Separator  = 'White'    # Colons and dividers matching the bracket color
-        Timestamp  = 'DarkGray'        # Timestamps in standard gray for neutrality
-        ProcessId  = 'DarkYellow'   # Main process ID in dark green for a calm tone
-        ThreadId   = 'Yellow'       # Thread ID in standard green for slight emphasis
-        Debug      = 'DarkGreen'        # DEBUG tag in cyan to stand out without being too bold
-        Error      = 'DarkRed'      # ERROR text in bright yellow for high visibility
-        ErrorBg    = 'Red'         # ERROR background in red to grab attention
-        AppTag     = 'White'       # Application-specific tag in white for clarity
-        SysTag     = 'DarkCyan'  # System tags in dark yellow for subtlety
-        Function   = 'Magenta'     # Function names in magenta to pop without clashing
-        Message    = 'Gray'        # Regular messages in gray for standard readability
-        ErrorMsg   = 'Red'         # Error messages in red to signify issues clearly
+        Brackets   = 'White'    
+        Separator  = 'White'    
+        Timestamp  = 'DarkGray'  
+        ProcessId  = 'DarkYellow'
+        ThreadId   = 'Yellow'    
+        Debug      = 'DarkGreen' 
+        Error      = 'DarkRed'   
+        ErrorBg    = 'Red'       
+        AppTag     = 'White'     
+        SysTag     = 'DarkCyan'  
+        Function   = 'Magenta'   
+        Message    = 'Gray'      
+        ErrorMsg   = 'Red'       
     }    
 
     if ($LogEntry -match '^\d{2}-\d{2}') {
@@ -93,5 +98,7 @@ function Launch-MauiLogs {
     }
 }
 
+# Clear the console
+Clear-Host
 # Run the script
-Launch-MauiLogs -ClearLogs -System
+Launch-MauiLogs -ClearLogs -System:$System

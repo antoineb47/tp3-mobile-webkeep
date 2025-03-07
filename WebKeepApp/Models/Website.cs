@@ -11,7 +11,7 @@ namespace WebKeepApp.Models
         public Website() { }
 
         // Constructor for enforcing the correct format of the object.
-        public Website(int userId, string name, string url, string? notes = null)
+        public Website(int userId, string name, string url, string? note = null)
         {
             if (userId < 0)
                 throw new ArgumentException("UserId must be greater than -1.", nameof(userId));
@@ -20,7 +20,7 @@ namespace WebKeepApp.Models
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Url = url ?? throw new ArgumentNullException(nameof(url));
             DateCreatedAt = DateTime.UtcNow;
-            Notes = notes;
+            Note = note;
             Id = Guid.NewGuid().ToString();
         }
 
@@ -37,7 +37,7 @@ namespace WebKeepApp.Models
         [NotNull]
         public DateTime DateCreatedAt { get; set; } = DateTime.UtcNow;
 
-        public string? Notes { get; set; }
+        public string? Note { get; set; }
 
         [NotNull]
         [Indexed]
