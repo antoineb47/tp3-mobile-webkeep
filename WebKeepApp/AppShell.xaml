@@ -16,8 +16,8 @@
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage"/>
     <ShellContent
-        Title="Create"
-        ContentTemplate="{DataTemplate local:CreatePage}"
-        Route="CreatePage"/>
+        Title="New Website"
+        ContentTemplate="{DataTemplate local:NewWebsitePage}"
+        Route="NewWebsitePage"/>
 
 </Shell>

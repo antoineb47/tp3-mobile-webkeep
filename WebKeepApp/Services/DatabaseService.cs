@@ -3,10 +3,12 @@ using WebKeepApp.Models;
 using WebKeepApp.Interfaces;
 using Microsoft.Extensions.Configuration;
 using WebKeepApp.Utils;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Bogus;
-using Newtonsoft.Json;
-using System.Text;
-using System.Text.Json;
 
 namespace WebKeepApp.Services
 {
@@ -14,7 +16,7 @@ namespace WebKeepApp.Services
     {
         private readonly IConfiguration _configuration;
         private readonly SQLiteAsyncConnection _database;
-        private readonly TableMapping[] _tables = [new(typeof(User)), new(typeof(Website))];
+        private readonly TableMapping[] _tables = [new TableMapping(typeof(User)), new TableMapping(typeof(Website))];
 
         public DatabaseService(IConfiguration configuration)
         {
@@ -26,8 +28,8 @@ namespace WebKeepApp.Services
             DLogger.Log($"Database file path: {dbPath}");
 
             _database = new SQLiteAsyncConnection(dbPath,
-            SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex,
-            storeDateTimeAsTicks: false);
+                SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex,
+                storeDateTimeAsTicks: false);
             DLogger.Log("Database connection created");
         }
 
@@ -46,76 +48,6 @@ namespace WebKeepApp.Services
             finally
             {
                 GC.SuppressFinalize(this);
-            }
-        }
-
-        private async Task ResetDatabaseAsync(TableMapping[] tables)
-        {
-            try
-            {
-                foreach (var table in tables)
-                {
-                    await _database.DropTableAsync(table);
-                    DLogger.Log($"Dropped table: {table.TableName}");
-                }
-                await _database.CreateTablesAsync<User, Website>();
-                DLogger.Log("Tables recreated successfully");
-            }
-            catch (Exception ex)
-            {
-                DLogger.Log($"Error dropping tables: {ex.Message}");
-                throw;
-            }
-        }
-
-        private async Task SeedDatabaseAsync(int numberOfUsers)
-        {
-            try
-            {
-                await ResetDatabaseAsync(_tables);
-                DLogger.Log("Database reset successfully");
-
-                Random random = new();
-
-                // Generate and insert users first
-                var fakeUsers = new Faker<User>()
-                    .CustomInstantiator(f => new User(
-                        username: f.Internet.UserName(),
-                        password: f.Internet.Password()
-                    ))
-                    .Generate(numberOfUsers);
-
-                // Insert users and get their assigned IDs
-                await _database.InsertAllAsync(fakeUsers);
-
-                // Query back the inserted users to get their auto-generated IDs
-                var insertedUsers = await _database.Table<User>().ToListAsync();
-                DLogger.Log($"Added {insertedUsers.Count} fake users");
-                DLogger.Log($"Users: {string.Join(", ", insertedUsers.Select(u => u.Username))}");
-
-                // Generate websites for each user with their correct IDs
-                foreach (var user in insertedUsers)
-                {
-                    var websites = new Faker<Website>()
-                        .CustomInstantiator(f => new Website(
-                            userId: user.Id,
-                            name: f.Internet.DomainName(),
-                            url: f.Internet.Url(),
-                            note: f.Lorem.Sentence()
-                        ))
-                        .Generate(random.Next(5, 10));
-
-                    await _database.InsertAllAsync(websites);
-                    DLogger.Log($"Added {websites.Count} fake websites for user {user.Id}");
-                    DLogger.Log($"Websites: {string.Join(", ", websites.Select(w => w.Url))}");
-                }
-
-                DLogger.Log($"Database seeded with {numberOfUsers} users and their websites");
-            }
-            catch (Exception ex)
-            {
-                DLogger.Log($"Error seeding database: {ex.Message}");
-                throw;
             }
         }
 
@@ -167,12 +99,16 @@ namespace WebKeepApp.Services
             }
         }
 
-        public async Task DeleteUserAsync(User user)
+        public async Task DeleteUserAsync(int userId)
         {
             try
             {
-                await _database.DeleteAsync(user);
-                DLogger.Log("User deleted successfully");
+                var user = await GetUserAsync(userId);
+                if (user != null)
+                {
+                    await _database.DeleteAsync(user);
+                    DLogger.Log("User deleted successfully");
+                }
             }
             catch (Exception ex)
             {
@@ -181,12 +117,16 @@ namespace WebKeepApp.Services
             }
         }
 
-        public async Task DeleteWebsiteAsync(Website website)
+        public async Task DeleteWebsiteAsync(string websiteId)
         {
             try
             {
-                await _database.DeleteAsync(website);
-                DLogger.Log("Website deleted successfully");
+                var website = await GetWebsiteAsync(websiteId);
+                if (website != null)
+                {
+                    await _database.DeleteAsync(website);
+                    DLogger.Log("Website deleted successfully");
+                }
             }
             catch (Exception ex)
             {
@@ -279,6 +219,76 @@ namespace WebKeepApp.Services
             catch (Exception ex)
             {
                 DLogger.Log($"Error updating website: {ex.Message}");
+                throw;
+            }
+        }
+
+        private async Task ResetDatabaseAsync(TableMapping[] tables)
+        {
+            try
+            {
+                foreach (var table in tables)
+                {
+                    await _database.DropTableAsync(table);
+                    DLogger.Log($"Dropped table: {table.TableName}");
+                }
+                await _database.CreateTablesAsync<User, Website>();
+                DLogger.Log("Tables recreated successfully");
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error dropping tables: {ex.Message}");
+                throw;
+            }
+        }
+
+        private async Task SeedDatabaseAsync(int numberOfUsers)
+        {
+            try
+            {
+                await ResetDatabaseAsync(_tables);
+                DLogger.Log("Database reset successfully");
+
+                Random random = new();
+
+                // Generate and insert users first
+                var fakeUsers = new Faker<User>()
+                    .CustomInstantiator(f => new User(
+                        username: f.Internet.UserName(),
+                        password: f.Internet.Password()
+                    ))
+                    .Generate(numberOfUsers);
+
+                // Insert users and get their assigned IDs
+                await _database.InsertAllAsync(fakeUsers);
+
+                // Query back the inserted users to get their auto-generated IDs
+                var insertedUsers = await _database.Table<User>().ToListAsync();
+                DLogger.Log($"Added {insertedUsers.Count} fake users");
+                DLogger.Log($"Users: {string.Join(", ", insertedUsers.Select(u => u.Username))}");
+
+                // Generate websites for each user with their correct IDs
+                foreach (var user in insertedUsers)
+                {
+                    var websites = new Faker<Website>()
+                        .CustomInstantiator(f => new Website(
+                            userId: user.Id,
+                            name: f.Internet.DomainName(),
+                            url: f.Internet.Url(),
+                            note: f.Lorem.Sentence()
+                        ))
+                        .Generate(random.Next(5, 10));
+
+                    await _database.InsertAllAsync(websites);
+                    DLogger.Log($"Added {websites.Count} fake websites for user {user.Id}");
+                    DLogger.Log($"Websites: {string.Join(", ", websites.Select(w => w.Url))}");
+                }
+
+                DLogger.Log($"Database seeded with {numberOfUsers} users and their websites");
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error seeding database: {ex.Message}");
                 throw;
             }
         }

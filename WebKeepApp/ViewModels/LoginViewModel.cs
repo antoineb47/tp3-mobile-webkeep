@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WebKeepApp.Interfaces;
 using WebKeepApp.Utils;
+using System.Threading.Tasks;
 
 namespace WebKeepApp.ViewModels
 {
@@ -12,23 +13,46 @@ namespace WebKeepApp.ViewModels
 
         [ObservableProperty]
         private string? password;
+
+        [ObservableProperty]
+        private string? errorMessage;
+
         private readonly ILoginService _loginService;
         private readonly IDialogService _dialogService;
+
+        private const string SuccessTitle = "Success";
+        private const string AttentionTitle = "Attention";
+        private const string InvalidCredentialsMessage = "Invalid username or password";
+        private const string EnterCredentialsMessage = "Please enter username and password";
+        private const string UserCreatedMessage = "User created successfully, you can now login";
+        private const string CreateUserPromptMessage = "No user with this username, would you like to create one?";
 
         public LoginViewModel(ILoginService loginService, IDialogService dialogService)
         {
             _loginService = loginService;
             _dialogService = dialogService;
+
+            username = string.Empty;
+            password = string.Empty;
         }
 
         [RelayCommand]
         private async Task TestUserAsync()
         {
-            var user = await _loginService.GetSampleUserAsync();
-            DLogger.Log($"User retrieved successfully: {user.Username} and {user.Password}");
+            try
+            {
+                var user = await _loginService.GetSampleUserAsync();
+                DLogger.Log($"User retrieved successfully: {user.Username} and {user.Password}");
 
-            Username = user.Username;
-            Password = user.Password;
+                Username = user.Username;
+                Password = user.Password;
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error retrieving sample user: {ex.Message}");
+                ErrorMessage = "Failed to retrieve sample user.";
+            }
         }
 
         [RelayCommand]
@@ -36,41 +60,75 @@ namespace WebKeepApp.ViewModels
         {
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             {
-                await _dialogService.DisplayAlertAsync("Error", "Please enter username and password", "OK");
+                ErrorMessage = EnterCredentialsMessage;
                 return;
             }
 
-            var usernameExists = await _loginService.UsernameExistsAsync(Username);
-            if (!usernameExists)
+            try
             {
-                bool createUser = await _dialogService.DisplayConfirmAsync
-                    ("Attention", "No user with this username, would you like to create one?", "Yes", "No");
-
-                if (createUser)
+                var usernameExists = await _loginService.UsernameExistsAsync(Username);
+                if (!usernameExists)
                 {
-                    // Redirect to user creation logic
-                    await _loginService.RegisterAsync(Username, Password);
-                    await _dialogService.DisplayAlertAsync("Success", "User created successfully, you can now login", "OK");
-                    Username = Password = string.Empty;
-                    DLogger.Log($"User created successfully: {Username} and {Password}");
+                    bool createUser = await _dialogService.DisplayConfirmAsync(AttentionTitle, CreateUserPromptMessage, "Yes", "No");
+
+                    if (createUser)
+                    {
+                        await CreateUserAsync();
+                        return;
+                    }
+
+                    DLogger.Log("User chose not to create user");
+                    ErrorMessage = "User creation was cancelled.";
                     return;
                 }
 
-                DLogger.Log("User chose to not create user");
-                return;
+                var logged = await _loginService.LoginAsync(Username, Password);
+
+                if (!logged)
+                {
+                    ErrorMessage = InvalidCredentialsMessage;
+                    DLogger.Log("Invalid username or password");
+                    return;
+                }
+
+                DLogger.Log($"User logged successfully: {Username}");
+                ErrorMessage = string.Empty;
+                await Shell.Current.GoToAsync("///MainPage");
             }
-
-            var logged = await _loginService.LoginAsync(Username, Password);
-
-            if (!logged)
+            catch (Exception ex)
             {
-                await _dialogService.DisplayAlertAsync("Error", "Invalid username or password", "OK");
-                DLogger.Log("Invalid username or password");
-                return;
+                DLogger.Log($"Error during login: {ex.Message}");
+                ErrorMessage = "An error occurred during login.";
             }
+        }
 
-            DLogger.Log($"User logged successfully : {Username} and {Password}");
-            await Shell.Current.GoToAsync("//MainPage");
+        private async Task CreateUserAsync()
+        {
+            try
+            {
+                if (Username != null && Password != null)
+                {
+                    await _loginService.RegisterAsync(Username, Password);
+                    await ShowAlertAsync(SuccessTitle, UserCreatedMessage);
+                    DLogger.Log($"User created successfully: {Username}");
+                    Username = Password = string.Empty;
+                    ErrorMessage = string.Empty;
+                }
+                else
+                {
+                    ErrorMessage = EnterCredentialsMessage;
+                }
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error creating user: {ex.Message}");
+                ErrorMessage = "An error occurred while creating the user.";
+            }
+        }
+
+        private async Task ShowAlertAsync(string title, string message)
+        {
+            await _dialogService.DisplayAlertAsync(title, message, "OK");
         }
     }
 }

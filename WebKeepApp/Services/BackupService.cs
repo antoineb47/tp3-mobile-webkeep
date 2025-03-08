@@ -10,16 +10,16 @@ namespace WebKeepApp.Services
     public class BackupService : IBackupService
     {
         private readonly HttpClient _httpClient;
-        private readonly IDatabaseService _databaseService;
+        private readonly IWebsiteService _websiteService;
         private readonly IConfiguration _configuration;
         private readonly JsonSerializerOptions _JsonOptions;
 
-        public BackupService(IHttpClientFactory httpClient, IDatabaseService databaseService, IConfiguration configuration)
+        public BackupService(IHttpClientFactory httpClient, IConfiguration configuration, IWebsiteService websiteService)
         {
             _httpClient = httpClient.CreateClient("BackupClient");
             _httpClient.Timeout = TimeSpan.FromSeconds(5);
 
-            _databaseService = databaseService;
+            _websiteService = websiteService;
             _configuration = configuration;
             _JsonOptions = new()
             {
@@ -30,8 +30,9 @@ namespace WebKeepApp.Services
         {
             try
             {
-                var websitesList = await _databaseService.GetWebsitesForUserAsync(UserId);
-                if (websitesList == null || websitesList.Count == 0)
+                var websitesList = await _websiteService.GetWebsitesForUserAsync(UserId);
+
+                if (websitesList == null || !websitesList.Any())
                 {
                     DLogger.Log($"No websites found for user {UserId}");
                     return new HttpResponseMessage(System.Net.HttpStatusCode.NotFound)
@@ -52,7 +53,7 @@ namespace WebKeepApp.Services
                 }
                 else
                 {
-                    DLogger.Log($"Successfully backed up {websitesList.Count} websites for user {UserId}");
+                    DLogger.Log($"Successfully backed up {websitesList.Count()} websites for user {UserId}");
                 }
 
                 return responseBackup;

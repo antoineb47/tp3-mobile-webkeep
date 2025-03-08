@@ -70,8 +70,8 @@ namespace WebKeepApp
                     builder.Services.AddTransient<LoginViewModel>();
                     builder.Services.AddTransient<MainPage>();
                     builder.Services.AddTransient<MainViewModel>();
-                    builder.Services.AddTransient<CreatePage>();
-                    builder.Services.AddTransient<CreateViewModel>();
+                    builder.Services.AddTransient<NewWebsitePage>();
+                    builder.Services.AddTransient<NewWebsiteViewModel>();
                     DLogger.Log("Pages and views loaded successfully");
                 }
                 catch (Exception ex)
@@ -84,6 +84,7 @@ namespace WebKeepApp
                 try
                 {
                     builder.Services.AddSingleton<ILoginService, LoginService>();
+                    builder.Services.AddSingleton<IWebsiteService, WebsiteService>();
                     builder.Services.AddSingleton<IBackupService, BackupService>();
                     builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
                     builder.Services.AddSingleton<IDialogService, DialogService>();

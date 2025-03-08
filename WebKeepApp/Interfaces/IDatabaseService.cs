@@ -10,8 +10,8 @@ namespace WebKeepApp.Interfaces
         Task InitializeDatabaseAsync();
         Task AddUserAsync(User user);
         Task AddWebsiteAsync(Website website);
-        Task DeleteUserAsync(User user);
-        Task DeleteWebsiteAsync(Website website);
+        Task DeleteUserAsync(int userId);
+        Task DeleteWebsiteAsync(string website);
         Task<User> GetUserAsync(int userId);
         Task<List<User>> GetUsersAsync();
         Task<Website> GetWebsiteAsync(string websiteId);

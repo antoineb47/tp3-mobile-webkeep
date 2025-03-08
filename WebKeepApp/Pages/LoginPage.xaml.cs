@@ -1,3 +1,4 @@
+using WebKeepApp.Utils;
 using WebKeepApp.ViewModels;
 
 namespace WebKeepApp.Pages;
@@ -8,5 +9,6 @@ public partial class LoginPage : ContentPage
     {
         InitializeComponent();
         BindingContext = loginViewModel;
+        DLogger.Log("LoginPage constructor called");
     }
 }

@@ -3,13 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WebKeepApp.Interfaces;
 using WebKeepApp.Models;
+using WebKeepApp.Utils;
 
 namespace WebKeepApp.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
         private readonly ILoginService _loginService;
-        private readonly IDatabaseService _databaseService;
+        private readonly IWebsiteService _websiteService;
 
         [ObservableProperty]
         private string? username;
@@ -20,84 +21,129 @@ namespace WebKeepApp.ViewModels
         [ObservableProperty]
         private ObservableCollection<Website> websites;
 
-        private User? user;
+        private User user;
 
-        public MainViewModel(ILoginService loginService, IDatabaseService databaseService)
+        public MainViewModel(ILoginService loginService, IWebsiteService websiteService)
         {
             _loginService = loginService;
-            _databaseService = databaseService;
+            _websiteService = websiteService;
 
-            websites = new ObservableCollection<Website>();
-
+            DLogger.Log("MainViewModel created");
             _ = InitializeAsync();
         }
 
-        private async Task InitializeAsync()
+        public async Task InitializeAsync()
         {
+            Websites = [];
+            user = new User();
+
             await LoadUserAsync();
             await LoadWebsitesAsync();
         }
 
         private async Task LoadUserAsync()
         {
-            user = await _loginService.GetLoggedUserAsync();
-            Username = user?.Username ?? "Unknown";
+            try
+            {
+                user = await _loginService.GetLoggedUserAsync() ?? new User();
+                DLogger.Log("User: " + user?.Username);
+                Username = user?.Username ?? "Unknown";
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error loading user: {ex.Message}");
+            }
         }
 
         private async Task LoadWebsitesAsync()
         {
-            if (user == null)
+            if (user?.Id == null) return;
+
+            try
             {
-                // Handle the case where the user is not logged in
-                return;
+                var websitesList = await _websiteService.GetWebsitesForUserAsync(user.Id);
+                if (websitesList != null)
+                {
+                    Websites = [.. websitesList.Select(w => new Website
+                    {
+                        Name = w.Name,
+                        Url = w.Url,
+                        DateCreatedAt = w.DateCreatedAt
+                    })];
+                    DLogger.Log($"Loaded {websitesList.Count()} websites");
+                }
             }
-
-            var websitesList = await _databaseService.GetWebsitesForUserAsync(user.Id);
-            Websites = new ObservableCollection<Website>(websitesList);
-        }
-
-        [RelayCommand]
-        private async void Button1()
-        {
-            // Handle Button 1 click - Add a new website
-            if (user == null)
+            catch (Exception ex)
             {
-                // Handle the case where the user is not logged in
-                return;
+                DLogger.Log($"Error loading websites: {ex.Message}");
             }
+        }
 
-            var newWebsite = new Website
+        [RelayCommand]
+        private async Task AddWebsiteAsync()
+        {
+            try
             {
-                Name = "New Website",
-                Url = "http://newwebsite.com",
-                UserId = user.Id
-            };
-
-            await _databaseService.AddWebsiteAsync(newWebsite);
-            Websites.Add(newWebsite);
+                var user = await _loginService.GetLoggedUserAsync() ?? throw new InvalidOperationException("User is not logged in.");
+                await Shell.Current.GoToAsync("AddWebsitePage");
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error navigating to AddWebsitePage: {ex.Message}");
+            }
         }
 
         [RelayCommand]
-        private async void Button2()
+        private async Task LogoutAsync()
         {
-            // Handle logout
-            await _loginService.LogoutAsync();
-            // Clear user data
-            Username = null;
-            user = null;
-            Websites.Clear();
+            try
+            {
+                DLogger.Log("Logging out...");
+                // Handle logout
+                var loggedOut = await _loginService.LogoutAsync(1);
+
+                if (!loggedOut) return;
+
+                // Clear user data
+                Username = null;
+                user = new User();
+                Websites.Clear();
+                await Shell.Current.GoToAsync("///LoginPage");
+                DLogger.Log("User logged out");
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error during logout: {ex.Message}");
+            }
         }
 
         [RelayCommand]
-        private void Search()
+        private async Task SearchAsync()
         {
-            // Filter websites based on SearchText
-            var filteredWebsites = (Websites ?? new ObservableCollection<Website>())
-                .Where(website => !string.IsNullOrEmpty(SearchText)
-                && !string.IsNullOrEmpty(website.Name) && website.Name.Contains
-                (SearchText, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-            Websites = new ObservableCollection<Website>(filteredWebsites);
+            try
+            {
+                DLogger.Log($"Searching for: {SearchText}");
+
+                if (string.IsNullOrWhiteSpace(SearchText))
+                {
+                    await LoadWebsitesAsync();
+                }
+                else
+                {
+                    var filtered = Websites
+                    .Where(w =>
+                    (!string.IsNullOrEmpty(w.Name) && w.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(w.Url) && w.Url.Contains(SearchText, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+
+                    Websites = [.. filtered];
+                }
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error during search: {ex.Message}");
+            }
         }
+
     }
 }
