@@ -1,0 +1,34 @@
+[
+  {
+    "userId": 1,
+    "websiteId": "00000000-0000-0000-0000-000000000000",
+    "name": "jessy.name",
+    "url": "http://cecelia.com",
+    "note": "Perspiciatis eum voluptatem dolor.",
+    "dateCreatedAt": "2025-03-08T07:48:29.544"
+  },
+  {
+    "userId": 1,
+    "websiteId": "00000000-0000-0000-0000-000000000000",
+    "name": "rahsaan.info",
+    "url": "https://norris.org",
+    "note": "Est magni architecto.",
+    "dateCreatedAt": "2025-03-08T07:48:29.546"
+  },
+  {
+    "userId": 1,
+    "websiteId": "00000000-0000-0000-0000-000000000000",
+    "name": "cayla.info",
+    "url": "http://mittie.biz",
+    "note": "Soluta in consequatur occaecati blanditiis ratione.",
+    "dateCreatedAt": "2025-03-08T07:48:29.546"
+  },
+  {
+    "userId": 1,
+    "websiteId": "00000000-0000-0000-0000-000000000000",
+    "name": "hope.com",
+    "url": "http://sheridan.name",
+    "note": "Dolorem distinctio adipisci tempora debitis.",
+    "dateCreatedAt": "2025-03-08T07:48:29.546"
+  }
+]

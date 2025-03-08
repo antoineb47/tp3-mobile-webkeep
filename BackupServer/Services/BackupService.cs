@@ -15,12 +15,18 @@ namespace BackupServer.Services
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<BackupService> _logger;
         private readonly ConcurrentDictionary<int, SemaphoreSlim> _locks = new();
+        private readonly JsonSerializerOptions _jsonOptions;
 
         public BackupService(IConfiguration configuration, IWebHostEnvironment env, ILogger<BackupService> logger)
         {
             _configuration = configuration;
             _env = env;
             _logger = logger;
+            _jsonOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
         }
 
         // Helper method to get the backup folder path using configuration and the content root.
@@ -48,8 +54,7 @@ namespace BackupServer.Services
                 var filePath = Path.Combine(backupFolder, $"{userId}.json");
                 _logger.LogInformation("Backup file path: {FilePath}", filePath);
 
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                var json = JsonSerializer.Serialize(websites, options);
+                var json = JsonSerializer.Serialize(websites, _jsonOptions);
                 _logger.LogInformation("Serialized JSON: {JsonData}", json);
 
                 await File.WriteAllTextAsync(filePath, json);
@@ -87,8 +92,7 @@ namespace BackupServer.Services
                     DateCreatedAt = DateTime.UtcNow
                 };
 
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                var json = JsonSerializer.Serialize(testData, options);
+                var json = JsonSerializer.Serialize(testData);
                 await File.WriteAllTextAsync(testFile, json);
 
                 var readJson = await File.ReadAllTextAsync(testFile);

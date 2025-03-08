@@ -1,7 +1,25 @@
-### Test health endpoint
+### Test health endpoint http
+GET http://localhost:5064/backup/health
+
+### Test backup endpoint http
+POST http://localhost:5064/backup/1
+Content-Type: application/json
+
+[
+  {
+    "userId": 1,
+    "websiteId": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Example Site",
+    "url": "https://example.com",
+    "note": "Test backup",
+    "dateCreatedAt": "2024-03-07T12:00:00Z"
+  }
+]
+
+### Test health endpoint https
 GET https://localhost:7269/backup/health
 
-### Test backup endpoint
+### Test backup endpoint https
 POST https://localhost:7269/backup/1
 Content-Type: application/json
 

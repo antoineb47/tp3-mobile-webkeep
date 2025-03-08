@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using WebKeepApp.Interfaces;
 using WebKeepApp.Services;
 using System.Threading.Tasks;
@@ -13,12 +14,11 @@ namespace WebKeepApp
     {
         public static MauiApp CreateMauiApp()
         {
-            try 
+            try
             {
-                DLogger.Log("Starting CreateMauiApp");
                 var builder = MauiApp.CreateBuilder();
-                DLogger.Log("Builder created");
-        
+                DLogger.Log("Starting CreateMauiApp");
+
                 builder
                     .UseMauiApp<App>()
                     .ConfigureFonts(fonts =>
@@ -27,18 +27,18 @@ namespace WebKeepApp
                         fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                     });
                 DLogger.Log("MAUI App and fonts configured");
-    
+
 #if DEBUG
                 builder.Logging.AddDebug();
                 DLogger.Log("Debug logging added");
 #endif
                 // Load configuration
-                try 
+                try
                 {
                     var assembly = typeof(MauiProgram).Assembly;
-                    using var stream = assembly.GetManifestResourceStream("WebKeepApp.appsettings.json") 
+                    using var stream = assembly.GetManifestResourceStream("WebKeepApp.appsettings.json")
                         ?? throw new InvalidOperationException("Could not load appsettings.json");
-            
+
                     builder.Configuration.AddJsonStream(stream);
                     DLogger.Log("Configuration loaded successfully");
                 }
@@ -54,37 +54,36 @@ namespace WebKeepApp
                 builder.Services.AddTransient<CreatePage>();
                 DLogger.Log("Pages registered as services");
 
-                // Initialize database
-                try 
+                // Initialize backup service
+                builder.Services.AddTransient<IBackupService, BackupService>();
+                DLogger.Log("Backup service registered as service");
+
+                builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
+                DLogger.Log("Backup service registered as service");
+
+                // Initialize HTTP client for backup API
+                builder.Services.AddHttpClient("BackupClient")
+                .ConfigureHttpClient((client, options) =>
                 {
-                    builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
-                    var app = builder.Build();
-                    var databaseService = app.Services.GetRequiredService<IDatabaseService>();
-                    
-                    DLogger.Log("Starting database initialization");
-                    Task.Run(async () => {
-                        try {
-                            await databaseService.InitializeDatabaseAsync();
-                            DLogger.Log("Database initialization completed successfully");
-                        }
-                        catch (Exception ex) {
-                            DLogger.Log("Database initialization failed in background task", ex);
-                        }
-                    });
-                    DLogger.Log("Returning app instance while database initializes");
-                    return app;
-                }
-                catch (Exception ex)
+                    options.Timeout = TimeSpan.FromSeconds(5);
+                    options.BaseAddress = new Uri(builder.Configuration["DatabaseSettings:BackupServerUrl"]
+                    ?? throw new Exception("Backup server base URL not found in configuration"));
+                    DLogger.Log($"Backup server URL: {options.BaseAddress}");
+                })
+                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
                 {
-                    DLogger.Log("Failed to initialize database", ex);
-                    throw;
-                }
-            } 
-            catch (Exception ex) 
+                    // Allow self-signed certificates for Android emulator (development only)
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                });
+
+                return builder.Build();
+            }
+            catch (Exception ex)
             {
-                DLogger.Log("Fatal error in app initialization", ex);
+                DLogger.Log("Error creating MauiApp", ex);
                 throw;
             }
+
         }
     }
 }

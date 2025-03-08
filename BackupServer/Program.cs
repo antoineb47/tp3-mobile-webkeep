@@ -4,10 +4,17 @@ using BackupServer.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure JSON options
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.WriteIndented = true;
+});
+
 builder.Services.AddSingleton<IBackupService, BackupService>();
 
 var app = builder.Build();
 
+// Configure the HTTPs request pipeline for easier integration with Android emulator
 app.UseHttpsRedirection();
 
 // Mapping the endpoints using the BackupService

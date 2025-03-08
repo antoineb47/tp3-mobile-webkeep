@@ -2,11 +2,11 @@ using SQLite;
 using WebKeepApp.Models;
 using WebKeepApp.Interfaces;
 using Microsoft.Extensions.Configuration;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using WebKeepApp.Utils;
 using Bogus;
+using Newtonsoft.Json;
+using System.Text;
+using System.Text.Json;
 
 namespace WebKeepApp.Services
 {
@@ -24,10 +24,10 @@ namespace WebKeepApp.Services
             var dbFileName = configuration["DatabaseSettings:DatabaseFileName"] ?? throw new Exception("Database file name not found in configuration");
             var dbPath = Path.Combine(FileSystem.AppDataDirectory, dbFileName);
             DLogger.Log($"Database file path: {dbPath}");
-            
+
             _database = new SQLiteAsyncConnection(dbPath,
             SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex,
-            storeDateTimeAsTicks : false);
+            storeDateTimeAsTicks: false);
             DLogger.Log("Database connection created");
         }
 
@@ -69,7 +69,7 @@ namespace WebKeepApp.Services
 
                 // Insert users and get their assigned IDs
                 await _database.InsertAllAsync(fakeUsers);
-                
+
                 // Query back the inserted users to get their auto-generated IDs
                 var insertedUsers = await _database.Table<User>().ToListAsync();
                 DLogger.Log($"Added {insertedUsers.Count} fake users");
@@ -83,9 +83,9 @@ namespace WebKeepApp.Services
                             userId: user.Id,
                             name: f.Internet.DomainName(),
                             url: f.Internet.Url(),
-                            notes: f.Lorem.Sentence()
+                            note: f.Lorem.Sentence()
                         ))
-                        .Generate(random.Next(1, 3));
+                        .Generate(random.Next(1, 5));
 
                     await _database.InsertAllAsync(websites);
                     DLogger.Log($"Added {websites.Count} fake websites for user {user.Id}");
@@ -112,7 +112,7 @@ namespace WebKeepApp.Services
 
                 if (reseed)
                     await SeedDatabaseAsync(5);
-                    DLogger.Log("Database seeded successfully");
+                DLogger.Log("Database seeded successfully");
             }
             catch (Exception ex)
             {

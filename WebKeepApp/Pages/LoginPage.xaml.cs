@@ -10,11 +10,13 @@ namespace WebKeepApp.Pages;
 public partial class LoginPage : ContentPage
 {
     private readonly IDatabaseService _databaseService;
-    
-    public LoginPage(IDatabaseService databaseService)
+    private readonly IBackupService _backupService;
+
+    public LoginPage(IDatabaseService databaseService, IBackupService backupService)
     {
         InitializeComponent();
         _databaseService = databaseService;
+        _backupService = backupService;
         DLogger.Log("LoginPage constructor called");
     }
 
@@ -22,15 +24,11 @@ public partial class LoginPage : ContentPage
     {
         try
         {
-            // Create user with required fields using constructor
-            var user = new User("TestUser1", "TestPassword1");
-            var website = new Website(user.Id, "testwebsite", "wwww.testwebsite.com", "this is a note");
-            
-            // Use async/await when calling database operations
-            await _databaseService.AddUserAsync(user);
-            await _databaseService.AddWebsiteAsync(website);
-            
-            DLogger.Log($"User {user.Username} added successfully");
+            var response = await _backupService.HealthCheckAsync();
+            var response1 = await _backupService.BackupUserDataAsync(1);
+            DLogger.Log($"LoginPage: Health check completed successfully: {response}");
+            DLogger.Log($"LoginPage: Backup user data completed successfully: {response1}");
+            DLogger.Log("Backup of user data completed successfully");
         }
         catch (Exception ex)
         {
