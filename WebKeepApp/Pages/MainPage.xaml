@@ -2,5 +2,12 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="WebKeepApp.Pages.MainPage">
-    
+
+
+    <StackLayout>
+        <Label Text="Welcome to WebKeepApp!"
+                HorizontalOptions="Center"
+                VerticalOptions="CenterAndExpand"/>
+    </StackLayout>
+
 </ContentPage>

@@ -1,11 +1,12 @@
-using Microsoft.Maui.Controls;
+using WebKeepApp.ViewModels;
 
 namespace WebKeepApp.Pages;
 
 public partial class MainPage : ContentPage
 {
-    public MainPage()
+    public MainPage(MainViewModel mainViewModel)
     {
         InitializeComponent();
+        BindingContext = mainViewModel;
     }
 }

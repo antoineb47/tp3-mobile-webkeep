@@ -10,9 +10,9 @@ namespace WebKeepApp.Services
     public class BackupService : IBackupService
     {
         private readonly HttpClient _httpClient;
-        private readonly JsonSerializerOptions _JsonOptions;
         private readonly IDatabaseService _databaseService;
         private readonly IConfiguration _configuration;
+        private readonly JsonSerializerOptions _JsonOptions;
 
         public BackupService(IHttpClientFactory httpClient, IDatabaseService databaseService, IConfiguration configuration)
         {

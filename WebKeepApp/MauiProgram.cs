@@ -1,12 +1,10 @@
-﻿using System.Diagnostics;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using WebKeepApp.Interfaces;
 using WebKeepApp.Services;
-using System.Threading.Tasks;
 using WebKeepApp.Utils;
 using WebKeepApp.Pages;
+using WebKeepApp.ViewModels;
 
 namespace WebKeepApp
 {
@@ -17,7 +15,7 @@ namespace WebKeepApp
             try
             {
                 var builder = MauiApp.CreateBuilder();
-                DLogger.Log("Starting CreateMauiApp");
+                DLogger.Log("Starting CreateMauiApp...");
 
                 builder
                     .UseMauiApp<App>()
@@ -50,16 +48,19 @@ namespace WebKeepApp
 
                 // Register pages as services
                 builder.Services.AddTransient<LoginPage>();
+                builder.Services.AddTransient<LoginViewModel>();
                 builder.Services.AddTransient<MainPage>();
+                builder.Services.AddTransient<MainViewModel>();
                 builder.Services.AddTransient<CreatePage>();
-                DLogger.Log("Pages registered as services");
+                builder.Services.AddTransient<CreateViewModel>();
+                DLogger.Log("Pages and views loaded successfully");
 
-                // Initialize backup service
-                builder.Services.AddTransient<IBackupService, BackupService>();
-                DLogger.Log("Backup service registered as service");
-
+                // Register services
+                builder.Services.AddSingleton<ILoginService, LoginService>();
+                builder.Services.AddSingleton<IBackupService, BackupService>();
                 builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
-                DLogger.Log("Backup service registered as service");
+                builder.Services.AddSingleton<IDialogService, DialogService>();
+                DLogger.Log("Services registered successfully");
 
                 // Initialize HTTP client for backup API
                 builder.Services.AddHttpClient("BackupClient")
@@ -75,7 +76,9 @@ namespace WebKeepApp
                     // Allow self-signed certificates for Android emulator (development only)
                     ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
                 });
+                DLogger.Log("Backup client configured successfully");
 
+                DLogger.Log("Building app...");
                 return builder.Build();
             }
             catch (Exception ex)

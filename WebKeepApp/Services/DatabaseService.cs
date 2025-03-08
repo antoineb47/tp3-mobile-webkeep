@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace WebKeepApp.Services
 {
-    public class DatabaseService : IDatabaseService
+    public class DatabaseService : IDatabaseService, IAsyncDisposable
     {
         private readonly IConfiguration _configuration;
         private readonly SQLiteAsyncConnection _database;
@@ -29,6 +29,24 @@ namespace WebKeepApp.Services
             SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex,
             storeDateTimeAsTicks: false);
             DLogger.Log("Database connection created");
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            try
+            {
+                await _database.CloseAsync();
+                DLogger.Log("Database connection closed");
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error disposing database: {ex.Message}");
+                throw;
+            }
+            finally
+            {
+                GC.SuppressFinalize(this);
+            }
         }
 
         private async Task ResetDatabaseAsync(TableMapping[] tables)

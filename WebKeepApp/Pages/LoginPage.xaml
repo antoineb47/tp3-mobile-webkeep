@@ -3,10 +3,32 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="WebKeepApp.Pages.LoginPage">
 
-        <StackLayout>
-            <Label Text="Login" FontSize="Large" HorizontalOptions="Center" />
-            <Entry Placeholder="Username" x:Name="UsernameEntry" Focused="UsernameEntry_Focused" />
-            <Entry Placeholder="Password" IsPassword="True" x:Name="PasswordEntry" />
-        </StackLayout>
-    
+       <Grid VerticalOptions="Center"
+             HorizontalOptions="Center">
+              <Grid.RowDefinitions>
+                     <RowDefinition Height="Auto"/>
+                     <RowDefinition Height="Auto"/>
+                     <RowDefinition Height="Auto"/>
+                     <RowDefinition Height="Auto"/>
+                     <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Label Text="WebKeep"
+                     FontSize="Large"
+                     HorizontalOptions="Center"
+                     Grid.Row="0"/>
+              <Entry Placeholder="Username"
+                     Text="{Binding Username}"
+                     Grid.Row="1"/>
+              <Entry Placeholder="Password"
+                     IsPassword="True"
+                     Text="{Binding Password}"
+                     Grid.Row="2"/>
+              <Button Text="S'inscrire"
+                      Command="{Binding LoginCommand}"
+                      Grid.Row="3"/>
+              <Button Text="Test User"
+                      Command="{Binding TestUserCommand}"
+                      Grid.Row="5"/>
+       </Grid>
+
 </ContentPage>
