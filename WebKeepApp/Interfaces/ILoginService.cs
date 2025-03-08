@@ -6,7 +6,7 @@ namespace WebKeepApp.Interfaces
     {
         Task<User> GetSampleUserAsync();
         Task<bool> UsernameExistsAsync(string username);
-        Task<bool> IsLoggedInAsync();
+        Task<User> GetLoggedUserAsync();
         Task<bool> LoginAsync(string username, string password);
         Task<bool> RegisterAsync(string username, string password);
         Task<bool> LogoutAsync();

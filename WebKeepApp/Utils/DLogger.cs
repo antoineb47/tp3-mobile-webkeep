@@ -10,7 +10,7 @@ namespace WebKeepApp.Utils
         {
             var frame = new StackTrace().GetFrame(1);
             var method = frame?.GetMethod()?.Name ?? "UnknownMethod";
-            
+
 #if ANDROID
             if (ex != null)
             {

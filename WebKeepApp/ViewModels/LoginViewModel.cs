@@ -51,6 +51,7 @@ namespace WebKeepApp.ViewModels
                     // Redirect to user creation logic
                     await _loginService.RegisterAsync(Username, Password);
                     await _dialogService.DisplayAlertAsync("Success", "User created successfully, you can now login", "OK");
+                    Username = Password = string.Empty;
                     DLogger.Log($"User created successfully: {Username} and {Password}");
                     return;
                 }
@@ -59,8 +60,17 @@ namespace WebKeepApp.ViewModels
                 return;
             }
 
-            await _loginService.LoginAsync(Username, Password);
+            var logged = await _loginService.LoginAsync(Username, Password);
+
+            if (!logged)
+            {
+                await _dialogService.DisplayAlertAsync("Error", "Invalid username or password", "OK");
+                DLogger.Log("Invalid username or password");
+                return;
+            }
+
             DLogger.Log($"User logged successfully : {Username} and {Password}");
+            await Shell.Current.GoToAsync("//MainPage");
         }
     }
 }

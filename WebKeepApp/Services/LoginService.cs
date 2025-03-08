@@ -7,12 +7,13 @@ namespace WebKeepApp.Services
     public class LoginService : ILoginService
     {
         private readonly IDatabaseService _databaseService;
+        private readonly string _authToken = "auth_token";
         public LoginService(IDatabaseService databaseService)
         {
             _databaseService = databaseService;
         }
 
-        private async Task<bool> UserExistsAsync(string username, string password)
+        private async Task<User?> UserExistsAsync(string username, string password)
         {
             try
             {
@@ -24,32 +25,40 @@ namespace WebKeepApp.Services
                 if (user == null)
                 {
                     DLogger.Log("User with username " + username + " not found");
-                    return false;
+                    return null;
                 }
 
                 DLogger.Log("User with username " + username + " found");
-                return user != null;
+                return user;
             }
             catch (Exception ex)
             {
                 DLogger.Log($"An error occurred while checking if user exists: {ex.Message}");
-                return false;
+                return null;
             }
+        }
+
+        private async Task<bool> IsLoggedInAsync()
+        {
+            var authToken = await SecureStorage.GetAsync(_authToken);
+            return !string.IsNullOrEmpty(authToken);
         }
 
         public async Task<bool> LoginAsync(string username, string password)
         {
             try
             {
-                var exists = await UserExistsAsync(username, password);
+                var user = await UserExistsAsync(username, password);
 
-                if (!exists)
+                if (user == null)
                 {
                     DLogger.Log("User with username " + username + " not found");
                     return false;
                 }
 
                 DLogger.Log($"User logged successfully: {username}");
+                await SecureStorage.SetAsync(_authToken, new string($"{user.Username}:{user.Id}"));
+                DLogger.Log($"Token: {SecureStorage.GetAsync(_authToken)}");
                 return true;
             }
             catch (Exception ex)
@@ -63,21 +72,21 @@ namespace WebKeepApp.Services
         {
             try
             {
-                var exists = await UserExistsAsync(username, password);
+                var user = await UserExistsAsync(username, password);
 
-                if (exists)
+                if (user != null)
                 {
                     DLogger.Log("User with username " + username + " already exists");
                     return false;
                 }
 
-                var user = new User
+                var newUser = new User
                 {
                     Username = username,
                     Password = password
                 };
 
-                await _databaseService.AddUserAsync(user);
+                await _databaseService.AddUserAsync(newUser);
                 DLogger.Log("User with username " + username + " registered successfully");
                 return true;
             }
@@ -88,39 +97,107 @@ namespace WebKeepApp.Services
             }
         }
 
-        public Task<bool> LogoutAsync()
+        public async Task<bool> LogoutAsync()
         {
-            // Your logout logic here
-            return Task.FromResult(true);
+            var logged = await IsLoggedInAsync();
+
+            if (!logged)
+            {
+                DLogger.Log("User not logged in");
+                return false;
+            }
+
+            try
+            {
+                SecureStorage.Remove(_authToken);
+                DLogger.Log("User logged out successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"An error occurred during logout: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<User> GetSampleUserAsync()
         {
-            var listUsers = await _databaseService.GetUsersAsync();
-            var user = listUsers.FirstOrDefault() ?? throw new InvalidOperationException("Sample user not found");
-            DLogger.Log($"User found: {user.Id}, {user.Username}, {user.Password}");
-            return user;
-        }
-
-        public Task<bool> IsLoggedInAsync()
-        {
-            throw new NotImplementedException();
+            try
+            {
+                var listUsers = await _databaseService.GetUsersAsync();
+                var user = listUsers.FirstOrDefault() ?? throw new InvalidOperationException("Sample user not found");
+                DLogger.Log($"User found: {user.Id}, {user.Username}, {user.Password}");
+                return user;
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"An error occurred while getting sample user: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<bool> UsernameExistsAsync(string username)
         {
-            var users = await _databaseService.GetUsersAsync();
-            var user = users.FirstOrDefault(u =>
-            u.Username != null && u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
-
-            if (user == null)
+            try
             {
-                DLogger.Log("Username not found");
+                var users = await _databaseService.GetUsersAsync();
+                var user = users.FirstOrDefault(u =>
+                u.Username != null && u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+
+                if (user == null)
+                {
+                    DLogger.Log("Username not found");
+                    return false;
+                }
+
+                DLogger.Log($"Username found: {user?.Id}, {user?.Username}, {user?.Password}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"An error occurred while checking if username exists: {ex.Message}");
                 return false;
             }
+        }
 
-            DLogger.Log($"Username found: {user?.Id}, {user?.Username}, {user?.Password}");
-            return true;
+        public async Task<User> GetLoggedUserAsync()
+        {
+            try
+            {
+                var token = await SecureStorage.GetAsync(_authToken);
+                if (string.IsNullOrEmpty(token))
+                {
+                    DLogger.Log("No token found");
+                    return null;
+                }
+
+                var parts = token.Split(':');
+                if (parts.Length != 2)
+                {
+                    DLogger.Log("Invalid token format");
+                    return null;
+                }
+
+                var username = parts[0];
+                var userId = parts[1];
+
+                var users = await _databaseService.GetUsersAsync();
+                var user = users.FirstOrDefault(u => u.Username == username && u.Id.ToString() == userId);
+
+                if (user == null)
+                {
+                    DLogger.Log("User not found");
+                    return null;
+                }
+
+                DLogger.Log($"Logged user found: {user.Id}, {user.Username}");
+                return user;
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"An error occurred while getting logged user: {ex.Message}");
+                return null;
+            }
         }
     }
 }

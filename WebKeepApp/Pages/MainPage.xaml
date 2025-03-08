@@ -3,11 +3,74 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="WebKeepApp.Pages.MainPage">
 
+    <Grid Padding="20"
+          RowSpacing="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-    <StackLayout>
-        <Label Text="Welcome to WebKeepApp!"
-                HorizontalOptions="Center"
-                VerticalOptions="CenterAndExpand"/>
-    </StackLayout>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Header Row -->
+        <Label Grid.Row="0"
+               Grid.Column="0"
+               Text="{Binding Username}"
+               FontSize="12"
+               VerticalOptions="Center"/>
+
+        <Button Grid.Row="0"
+                Grid.Column="1"
+                Text="Add"
+                Command="{Binding AddWebsiteCommand}"
+                Margin="10,0"
+                WidthRequest="75"/>
+
+        <Button Grid.Row="0"
+                Grid.Column="2"
+                Text="Logout"
+                Command="{Binding LogoutCommand}"
+                WidthRequest="75"/>
+
+        <!-- Search Bar -->
+        <SearchBar Grid.Row="1"
+                   Grid.ColumnSpan="3"
+                   Placeholder="Search websites..."
+                   Text="{Binding SearchText}"
+                   SearchCommand="{Binding SearchCommand}"/>
+
+        <!-- Websites List -->
+        <CollectionView Grid.Row="2"
+                        Grid.ColumnSpan="3"
+                        ItemsSource="{Binding Websites}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="10"
+                          Margin="0,1">
+                        <Border StrokeShape="RoundRectangle 10">
+                            <Label Text="{Binding Name}"
+                                   FontSize="16"
+                                   Padding="10"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <CollectionView.EmptyView>
+                <Grid>
+                    <Label Text="No websites found"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Grid>
+            </CollectionView.EmptyView>
+        </CollectionView>
+    </Grid>
+
 
 </ContentPage>

@@ -103,7 +103,7 @@ namespace WebKeepApp.Services
                             url: f.Internet.Url(),
                             note: f.Lorem.Sentence()
                         ))
-                        .Generate(random.Next(1, 5));
+                        .Generate(random.Next(5, 10));
 
                     await _database.InsertAllAsync(websites);
                     DLogger.Log($"Added {websites.Count} fake websites for user {user.Id}");

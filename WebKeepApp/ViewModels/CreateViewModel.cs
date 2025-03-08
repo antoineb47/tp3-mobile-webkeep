@@ -2,9 +2,7 @@ using System.ComponentModel;
 
 namespace WebKeepApp.ViewModels
 {
-    public class CreateViewModel : INotifyPropertyChanged
+    public class CreateViewModel
     {
-        // Your properties and methods here
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }
