@@ -4,6 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 using WebKeepApp.Interfaces;
 using WebKeepApp.Models;
 using WebKeepApp.Utils;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace WebKeepApp.ViewModels
 {
@@ -21,6 +23,7 @@ namespace WebKeepApp.ViewModels
         [ObservableProperty]
         private ObservableCollection<Website> websites;
 
+        private List<Website> allWebsites;
         private User user;
 
         public MainViewModel(ILoginService loginService, IWebsiteService websiteService)
@@ -28,15 +31,16 @@ namespace WebKeepApp.ViewModels
             _loginService = loginService;
             _websiteService = websiteService;
 
+            Websites = new ObservableCollection<Website>();
+            allWebsites = new List<Website>();
+            user = new User();
+
             DLogger.Log("MainViewModel created");
             _ = InitializeAsync();
         }
 
         public async Task InitializeAsync()
         {
-            Websites = [];
-            user = new User();
-
             await LoadUserAsync();
             await LoadWebsitesAsync();
         }
@@ -64,18 +68,29 @@ namespace WebKeepApp.ViewModels
                 var websitesList = await _websiteService.GetWebsitesForUserAsync(user.Id);
                 if (websitesList != null)
                 {
-                    Websites = [.. websitesList.Select(w => new Website
-                    {
-                        Name = w.Name,
-                        Url = w.Url,
-                        DateCreatedAt = w.DateCreatedAt
-                    })];
+                    allWebsites = websitesList.ToList();
+                    FilterWebsites();
                     DLogger.Log($"Loaded {websitesList.Count()} websites");
                 }
             }
             catch (Exception ex)
             {
                 DLogger.Log($"Error loading websites: {ex.Message}");
+            }
+        }
+
+        private void FilterWebsites()
+        {
+            var filtered = string.IsNullOrWhiteSpace(SearchText)
+                ? allWebsites
+                : [.. allWebsites.Where(w =>
+                    (!string.IsNullOrEmpty(w.Name) && w.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(w.Url) && w.Url.Contains(SearchText, StringComparison.OrdinalIgnoreCase)))];
+
+            Websites.Clear();
+            foreach (var website in filtered)
+            {
+                Websites.Add(website);
             }
         }
 
@@ -99,12 +114,10 @@ namespace WebKeepApp.ViewModels
             try
             {
                 DLogger.Log("Logging out...");
-                // Handle logout
-                var loggedOut = await _loginService.LogoutAsync(1);
+                var loggedOut = await _loginService.LogoutAsync(user.Id);
 
                 if (!loggedOut) return;
 
-                // Clear user data
                 Username = null;
                 user = new User();
                 Websites.Clear();
@@ -118,32 +131,17 @@ namespace WebKeepApp.ViewModels
         }
 
         [RelayCommand]
-        private async Task SearchAsync()
+        private void Search()
         {
             try
             {
                 DLogger.Log($"Searching for: {SearchText}");
-
-                if (string.IsNullOrWhiteSpace(SearchText))
-                {
-                    await LoadWebsitesAsync();
-                }
-                else
-                {
-                    var filtered = Websites
-                    .Where(w =>
-                    (!string.IsNullOrEmpty(w.Name) && w.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrEmpty(w.Url) && w.Url.Contains(SearchText, StringComparison.OrdinalIgnoreCase)))
-                    .ToList();
-
-                    Websites = [.. filtered];
-                }
+                FilterWebsites();
             }
             catch (Exception ex)
             {
                 DLogger.Log($"Error during search: {ex.Message}");
             }
         }
-
     }
 }
