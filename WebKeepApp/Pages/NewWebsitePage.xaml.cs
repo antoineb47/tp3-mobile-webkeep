@@ -1,4 +1,3 @@
-using WebKeepApp.Utils;
 using WebKeepApp.ViewModels;
 
 namespace WebKeepApp.Pages;
@@ -9,5 +8,15 @@ public partial class NewWebsitePage : ContentPage
     {
         InitializeComponent();
         BindingContext = newWebsiteViewModel;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is NewWebsiteViewModel viewModel)
+        {
+            await viewModel.InitializeAsync();
+        }
     }
 }

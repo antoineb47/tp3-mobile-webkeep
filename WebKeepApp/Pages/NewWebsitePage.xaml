@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:WebKeepApp.ViewModels"
              x:Class="WebKeepApp.Pages.NewWebsitePage"
-             Title="Binding {PageTitle}"
-             NavigationPage.HasNavigationBar="True"
              BackgroundColor="White"
              Padding="20">
 
-        <ContentPage.ToolbarItems>
-                <ToolbarItem Text="Back"
-                             Command="{Binding GoBackCommand}"/>
-        </ContentPage.ToolbarItems>
-
         <StackLayout Spacing="20">
+
+                <Label Text="{Binding PageTitle}"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+
                 <Entry Placeholder="Enter website name"
                        Text="{Binding Name}"
                        Margin="0,0,0,10"/>

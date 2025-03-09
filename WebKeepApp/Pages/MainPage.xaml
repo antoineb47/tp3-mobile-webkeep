@@ -3,13 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WebKeepApp.ViewModels"
              x:Class="WebKeepApp.Pages.MainPage"
-             Title=""
-             NavigationPage.HasNavigationBar="False">
+             Shell.NavBarIsVisible="False"
+             Title="Home">
 
     <Grid Padding="20"
-          RowSpacing="15">
+          RowSpacing="16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -24,52 +25,65 @@
             </Grid.ColumnDefinitions>
 
             <VerticalStackLayout Grid.Column="0"
-                                 Spacing="5"
+                                 Spacing="6"
                                  VerticalOptions="Center">
                 <Label Text="Welcome"
-                       FontSize="18"
-                       FontAttributes="Bold"/>
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       Margin="0,0,0,2"/>
                 <Label Text="{Binding Username}"
-                       FontSize="14"
+                       FontSize="16"
                        TextColor="Gray"/>
             </VerticalStackLayout>
 
             <Button Grid.Column="1"
                     Text="Add"
                     Command="{Binding AddWebsiteCommand}"
-                    Margin="10,0"
-                    WidthRequest="75"/>
+                    Margin="15,0"
+                    WidthRequest="85"
+                    HeightRequest="45"
+                    CornerRadius="8"/>
 
             <Button Grid.Column="2"
                     Text="Logout"
                     Command="{Binding LogoutCommand}"
-                    WidthRequest="75"/>
+                    WidthRequest="85"
+                    HeightRequest="45"
+                    CornerRadius="8"/>
         </Grid>
 
+        <Button Grid.Row="1"
+                Grid.ColumnSpan="3"
+                Text="Backup Data"
+                Command="{Binding BackupCommand}"
+                HeightRequest="45"
+                CornerRadius="8"/>
+
         <!-- Search Bar -->
-        <Entry Grid.Row="1"
+        <Entry Grid.Row="2"
                Grid.ColumnSpan="3"
                Placeholder="Search websites..."
                Text="{Binding SearchText}"
                ReturnCommand="{Binding SearchCommand}"
-               Margin="0,0,0,10"
-               HeightRequest="40"/>
+               Margin="0,5,0,10"
+               HeightRequest="50"
+               FontSize="16"/>
 
         <!-- Websites List -->
-        <CollectionView Grid.Row="2"
+        <CollectionView Grid.Row="3"
                         ItemsSource="{Binding Websites}"
-                        Margin="0,10">
+                        Margin="0,5">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border Margin="0,5"
-                            Padding="15"
-                            StrokeShape="RoundRectangle 10,10,10,10"
+                    <Border Margin="0,8"
+                            Padding="18"
+                            StrokeShape="RoundRectangle 12"
                             BackgroundColor="{AppThemeBinding Light=White, Dark=#333333}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=ShowOptionsCommand}"
                                                   CommandParameter="{Binding .}"/>
                         </Border.GestureRecognizers>
-                        <Grid RowSpacing="5">
+                        <Grid RowSpacing="8">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -83,15 +97,16 @@
                             <Label Grid.Row="0"
                                    Grid.Column="0"
                                    Text="{Binding Name}"
-                                   FontSize="18"
+                                   FontSize="19"
                                    FontAttributes="Bold"/>
 
                             <!-- Creation Date -->
                             <Label Grid.Row="0"
                                    Grid.Column="1"
                                    Text="{Binding DateCreatedAt, StringFormat='{0:d}'}"
-                                   FontSize="12"
+                                   FontSize="14"
                                    TextColor="Gray"
+                                   Margin="0,0,0,2"
                                    VerticalOptions="Center"/>
 
                             <!-- Website URL -->
@@ -99,7 +114,7 @@
                                    Grid.Column="0"
                                    Grid.ColumnSpan="2"
                                    Text="{Binding Url}"
-                                   FontSize="14"
+                                   FontSize="16"
                                    TextColor="Gray"/>
                         </Grid>
                     </Border>
@@ -109,6 +124,7 @@
             <CollectionView.EmptyView>
                 <Grid>
                     <Label Text="No websites found"
+                           FontSize="18"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
                 </Grid>

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using WebKeepApp.Utils;
 using WebKeepApp.ViewModels;
 
@@ -12,14 +13,14 @@ public partial class MainPage : ContentPage
         DLogger.Log("MainPage constructor called");
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
         DLogger.Log("MainPage OnAppearing called");
         // Add code here to refresh data or update UI.
         if (BindingContext is MainViewModel vm)
         {
-            Task.Run(() => vm.InitializeAsync());
+            await vm.InitializeAsync();
         }
     }
 }

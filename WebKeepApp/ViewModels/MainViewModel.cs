@@ -11,9 +11,6 @@ namespace WebKeepApp.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private readonly ILoginService _loginService;
-        private readonly IWebsiteService _websiteService;
-
         [ObservableProperty]
         private string? username;
 
@@ -23,13 +20,21 @@ namespace WebKeepApp.ViewModels
         [ObservableProperty]
         private ObservableCollection<Website> websites;
 
+        private readonly ILoginService _loginService;
+        private readonly IWebsiteService _websiteService;
+        private readonly IDialogService _dialogService;
+
+        private readonly IBackupService _backupService;
+
         private List<Website> allWebsites;
         private User user;
 
-        public MainViewModel(ILoginService loginService, IWebsiteService websiteService)
+        public MainViewModel(ILoginService loginService, IWebsiteService websiteService, IBackupService backupService, IDialogService dialogService)
         {
             _loginService = loginService;
             _websiteService = websiteService;
+            _backupService = backupService;
+            _dialogService = dialogService;
 
             Websites = new ObservableCollection<Website>();
             allWebsites = new List<Website>();
@@ -101,7 +106,7 @@ namespace WebKeepApp.ViewModels
             try
             {
                 var user = await _loginService.GetLoggedUserAsync() ?? throw new InvalidOperationException("User is not logged in.");
-                await Shell.Current.GoToAsync("///NewWebsitePage");
+                await Shell.Current.GoToAsync("NewWebsitePage?mode=Create");
             }
             catch (Exception ex)
             {
@@ -114,6 +119,9 @@ namespace WebKeepApp.ViewModels
         {
             try
             {
+                bool confirm = await _dialogService.DisplayConfirmAsync("Logout", "Are you sure you want to logout?", "Yes", "No");
+                if (!confirm) return;
+
                 DLogger.Log("Logging out...");
                 var loggedOut = await _loginService.LogoutAsync(user.Id);
 
@@ -146,11 +154,31 @@ namespace WebKeepApp.ViewModels
         }
 
         [RelayCommand]
+        private async Task BackupAsync()
+        {
+            try
+            {
+                bool confirm = await _dialogService.DisplayConfirmAsync("Backup", "Do you want to backup your data?", "Yes", "No");
+                if (!confirm) return;
+
+                DLogger.Log("Backing up data...");
+                await _backupService.BackupUserDataAsync(user.Id);
+                DLogger.Log("Data backed up successfully");
+
+                await _dialogService.DisplayAlertAsync("Backup", "Data have been backed up successfully.", "OK");
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error during backup: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
         private async Task ShowOptionsAsync(Website website)
         {
             try
             {
-                var result = await Shell.Current.DisplayAlert("Options", "Choose an option", "Go to Website", "Edit Website");
+                var result = await _dialogService.DisplayConfirmAsync("Options", "Choose an option", "Go to Website", "Edit Website");
 
                 if (result)
                 {
@@ -167,7 +195,7 @@ namespace WebKeepApp.ViewModels
                 else
                 {
                     DLogger.Log($"Navigating to NewWebsitePage for editing: {website.Id}");
-                    await Shell.Current.GoToAsync($"///NewWebsitePage?websiteId={website.Id}&mode=Edit");
+                    await Shell.Current.GoToAsync($"NewWebsitePage?websiteId={website.Id}&mode=Edit");
                 }
             }
             catch (Exception ex)

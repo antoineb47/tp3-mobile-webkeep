@@ -4,8 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using WebKeepApp.Interfaces;
 using WebKeepApp.Models;
 using WebKeepApp.Utils;
-using System.Threading.Tasks;
-using Microsoft.Maui.Controls;
 
 namespace WebKeepApp.ViewModels
 {
@@ -13,9 +11,11 @@ namespace WebKeepApp.ViewModels
     [QueryProperty(nameof(Mode), "mode")]
     public partial class NewWebsiteViewModel : ObservableObject
     {
-        private readonly IWebsiteService _websiteService;
-        private readonly ILoginService _loginService;
-        private readonly IDialogService _dialogService;
+        public string? Mode { get; set; }
+        public string? WebsiteId { get; set; }
+
+        [ObservableProperty]
+        private bool isEditMode;
 
         [ObservableProperty]
         private string? name;
@@ -27,51 +27,59 @@ namespace WebKeepApp.ViewModels
         private string? note;
 
         [ObservableProperty]
-        private bool isEditMode;
+        private string pageTitle = "Default Title";
+        private Website? website;
 
-        [ObservableProperty]
-        private string pageTitle;
+        private readonly IWebsiteService _websiteService;
+        private readonly ILoginService _loginService;
+        private readonly IDialogService _dialogService;
 
-        private string websiteId;
-
-        public string WebsiteId
-        {
-            get => websiteId;
-            set
-            {
-                websiteId = value;
-                LoadWebsite(value);
-            }
-        }
-
-        private string mode;
-        public string Mode
-        {
-            get => mode;
-            set
-            {
-                mode = value;
-                IsEditMode = mode == "Edit";
-                PageTitle = IsEditMode ? "Edit Website" : "New Website";
-                ResetFields();
-            }
-        }
 
         public NewWebsiteViewModel(IWebsiteService websiteService, ILoginService loginService, IDialogService dialogService)
         {
             _websiteService = websiteService;
             _loginService = loginService;
             _dialogService = dialogService;
-            pageTitle = string.Empty;
-            websiteId = string.Empty;
-            mode = string.Empty;
+
+            _ = InitializeAsync();
         }
 
-        private async void LoadWebsite(string websiteId)
+        public async Task InitializeAsync()
+        {
+            IsEditMode = Mode == "Edit";
+            PageTitle = IsEditMode ? "Edit website" : "Create website";
+            try
+            {
+                if (IsEditMode)
+                {
+                    DLogger.Log($"Initializing in edit mode with websiteId: {WebsiteId}");
+                    if (WebsiteId != null)
+                    {
+                        await LoadWebsiteAsync(WebsiteId);
+                    }
+                    else
+                    {
+                        DLogger.Log("Error: WebsiteId is null in edit mode.");
+                        ResetFields();
+                    }
+                }
+                else
+                {
+                    DLogger.Log("Initializing in create mode");
+                    ResetFields();
+                }
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error initializing: {ex.Message}");
+            }
+        }
+
+        private async Task LoadWebsiteAsync(string websiteId)
         {
             try
             {
-                var website = await _websiteService.GetWebsiteAsync(websiteId);
+                website = await _websiteService.GetWebsiteAsync(websiteId);
                 if (website != null)
                 {
                     Name = website.Name;
@@ -92,14 +100,12 @@ namespace WebKeepApp.ViewModels
             {
                 var user = await _loginService.GetLoggedUserAsync() ?? throw new InvalidOperationException("User is not logged in.");
 
-                // Validate Name field
                 if (string.IsNullOrEmpty(Name))
                 {
                     await _dialogService.DisplayAlertAsync("Validation Error", "The Name field cannot be empty.", "OK");
                     return;
                 }
 
-                // Validate URL field
                 if (!string.IsNullOrEmpty(Url))
                 {
                     if (!Url.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ||
@@ -110,7 +116,6 @@ namespace WebKeepApp.ViewModels
                     }
                 }
 
-                // Check if both Note and URL fields are empty
                 if (string.IsNullOrEmpty(Note) && string.IsNullOrEmpty(Url))
                 {
                     bool proceed = await _dialogService.DisplayConfirmAsync("Empty Fields", "Both Note and URL fields are empty. Do you want to proceed?", "Yes", "No");
@@ -120,10 +125,10 @@ namespace WebKeepApp.ViewModels
                     }
                 }
 
-                // Validate duplicate Name
                 var existingWebsites = await _websiteService.GetWebsitesForUserAsync(user.Id);
                 var existingWebsiteByName = existingWebsites?.FirstOrDefault(w => w.Name != null && w.Name.Equals(Name, StringComparison.OrdinalIgnoreCase));
-                if (existingWebsiteByName != null && (!IsEditMode || (IsEditMode && existingWebsiteByName.Id != websiteId)))
+
+                if (existingWebsiteByName != null && !IsEditMode && existingWebsiteByName.Id != WebsiteId)
                 {
                     await _dialogService.DisplayAlertAsync("Validation Error", "A website with the same name already exists.", "OK");
                     return;
@@ -132,8 +137,8 @@ namespace WebKeepApp.ViewModels
                 // Validate duplicate URL
                 if (!string.IsNullOrEmpty(Url))
                 {
-                    var existingWebsiteByUrl = await _websiteService.WebsiteExistsForUserAsyncByUrl(Url, user.Id);
-                    if (existingWebsiteByUrl)
+                    bool duplicateUrlExists = await _websiteService.WebsiteExistsForUserAsyncByUrl(Url, user.Id);
+                    if (duplicateUrlExists && !IsEditMode)
                     {
                         bool proceed = await _dialogService.DisplayConfirmAsync("Duplicate URL", "A website with the same URL already exists. Do you want to proceed?", "Yes", "No");
                         if (!proceed)
@@ -146,7 +151,12 @@ namespace WebKeepApp.ViewModels
                 bool success;
                 if (IsEditMode)
                 {
-                    success = await _websiteService.UpdateWebsiteAsync(websiteId, Name, Url ?? string.Empty, Note);
+                    if (WebsiteId == null)
+                    {
+                        await _dialogService.DisplayAlertAsync("Error", "Website ID is missing. Unable to update website.", "OK");
+                        return;
+                    }
+                    success = await _websiteService.UpdateWebsiteAsync(WebsiteId, Name, Url ?? string.Empty, Note);
                 }
                 else
                 {
@@ -178,7 +188,12 @@ namespace WebKeepApp.ViewModels
                 bool confirm = await _dialogService.DisplayConfirmAsync("Confirm Delete", "Are you sure you want to delete this website?", "Yes", "No");
                 if (confirm)
                 {
-                    var success = await _websiteService.DeleteWebsiteAsync(websiteId);
+                    if (WebsiteId == null)
+                    {
+                        await _dialogService.DisplayAlertAsync("Error", "Website ID is not set.", "OK");
+                        return;
+                    }
+                    var success = await _websiteService.DeleteWebsiteAsync(WebsiteId);
                     if (success)
                     {
                         DLogger.Log("Website deleted successfully");
@@ -200,8 +215,15 @@ namespace WebKeepApp.ViewModels
         [RelayCommand]
         private async Task GoBackAsync()
         {
-            DLogger.Log("Going back to main page");
-            await Shell.Current.GoToAsync("///MainPage");
+            try
+            {
+                DLogger.Log("Cancelling");
+                await Shell.Current.GoToAsync("..");
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error cancelling: {ex.Message}");
+            }
         }
 
         private void ResetFields()
