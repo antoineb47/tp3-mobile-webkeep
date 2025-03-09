@@ -1,5 +1,5 @@
 param(
-    [Parameter(HelpMessage="Run debug logging after starting the app")]
+    [Parameter(HelpMessage = "Run debug logging after starting the app")]
     [Alias("d")]
     [switch]$ShowDebug
 )
@@ -38,24 +38,27 @@ catch {
 # Store current directory path
 $projectPath = $PWD.Path
 
-# Build and run the MAUI project
-Write-Message "[INFO] Building and running the MAUI Android app..." -ForegroundColor "Cyan"
-
-$mauiCmd = "cd '$projectPath\WebKeepApp'; Write-Host '[INFO] Building WebKeepApp for Android...' -ForegroundColor Cyan; dotnet build -t:Run -f net8.0-android"
-Start-Process powershell -ArgumentList "-NoExit", "-Command", $mauiCmd
-
-# Launch the server
+# Launch the server first in a separate window
 Write-Message "[INFO] Starting the WebKeep server..." -ForegroundColor "Cyan"
-
 $serverCmd = "cd '$projectPath\BackupServer'; Write-Host '[INFO] Starting BackupServer...' -ForegroundColor Cyan; dotnet run"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", $serverCmd
 
-Write-Message "[INFO] All components started successfully." -ForegroundColor "Green"
+# Build and run the MAUI project (will wait until this completes)
+Write-Message "[INFO] Building and running the MAUI Android app..." -ForegroundColor "Cyan"
+$mauiCmd = "cd '$projectPath\WebKeepApp'; Write-Host '[INFO] Building WebKeepApp for Android...' -ForegroundColor Cyan; dotnet build -t:Run -f net8.0-android"
+# Start this process and wait for it to launch before continuing
+$process = Start-Process powershell -ArgumentList "-NoExit", "-Command", $mauiCmd -PassThru
 
-# Run DebugMaui.ps1 if debug parameter is provided
+# Wait a moment to ensure build has started
+Start-Sleep -Seconds 3
+
+Write-Message "[INFO] Android app deploying..." -ForegroundColor "Green"
+
+# Run DebugMaui.ps1 if debug parameter is provided, after app is building
 if ($ShowDebug) {
     Write-Message "[INFO] Starting MAUI debug logging..." -ForegroundColor "Cyan"
     Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$projectPath'; .\DebugMaui.ps1"
 }
 
+Write-Message "[INFO] All components started successfully." -ForegroundColor "Green"
 Write-Message "Use Ctrl+C in the respective windows to stop the processes." -ForegroundColor "Yellow"
