@@ -5,35 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace WebKeepApp.Services
 {
     public class WebsiteService : IWebsiteService
     {
         private readonly IDatabaseService _databaseService;
-        private readonly IHttpClientFactory _httpClientFactory;
 
-        public WebsiteService(IDatabaseService databaseService, IHttpClientFactory httpClientFactory)
+        public WebsiteService(IDatabaseService databaseService)
         {
             _databaseService = databaseService;
-            _httpClientFactory = httpClientFactory;
-        }
-
-        public async Task<string> GetWebsiteContentAsync(string url)
-        {
-            try
-            {
-                DLogger.Log($"Fetching content for URL: {url}");
-                var client = _httpClientFactory.CreateClient();
-                var content = await client.GetStringAsync(url);
-                DLogger.Log($"Successfully fetched content for URL: {url}");
-                return content;
-            }
-            catch (Exception ex)
-            {
-                DLogger.Log($"Error fetching content for URL: {url}", ex);
-                throw;
-            }
         }
 
         public async Task<bool> WebsiteExistsForUserAsyncByUrl(string url, int userId)
@@ -77,6 +59,7 @@ namespace WebKeepApp.Services
                 DLogger.Log($"Creating website with name: {name}, url: {url} for user with ID: {userId}");
                 var newWebsite = new Website
                 {
+                    Id = Guid.NewGuid().ToString(),
                     Name = name,
                     Url = url,
                     UserId = userId,
@@ -137,6 +120,27 @@ namespace WebKeepApp.Services
             }
         }
 
+        public async Task<Website> GetWebsiteAsync(string websiteId)
+        {
+            try
+            {
+                DLogger.Log($"Retrieving website with ID: {websiteId}");
+                var website = await _databaseService.GetWebsiteAsync(websiteId);
+                if (website == null)
+                {
+                    DLogger.Log($"Website with ID: {websiteId} not found");
+                    throw new KeyNotFoundException($"Website with ID: {websiteId} not found");
+                }
+                DLogger.Log($"Successfully retrieved website with ID: {websiteId}");
+                return website;
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error retrieving website with ID: {websiteId}", ex);
+                throw;
+            }
+        }
+
         public async Task<IEnumerable<Website>> GetWebsitesForUserAsync(int userId)
         {
             try
@@ -150,6 +154,19 @@ namespace WebKeepApp.Services
             {
                 DLogger.Log($"Error retrieving websites for user with ID: {userId}", ex);
                 throw;
+            }
+        }
+
+        public async Task OpenWebsiteInChromeAsync(string url)
+        {
+            try
+            {
+                await Browser.OpenAsync(url, BrowserLaunchMode.SystemPreferred);
+                DLogger.Log($"Successfully opened URL: {url} in the default browser.");
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error opening URL in browser: {ex.Message}");
             }
         }
     }

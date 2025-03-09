@@ -1,6 +1,47 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="WebKeepApp.Pages.NewWebsitePage">
+             xmlns:vm="clr-namespace:WebKeepApp.ViewModels"
+             x:Class="WebKeepApp.Pages.NewWebsitePage"
+             Title="Binding {PageTitle}"
+             NavigationPage.HasNavigationBar="True"
+             BackgroundColor="White"
+             Padding="20">
+
+        <ContentPage.ToolbarItems>
+                <ToolbarItem Text="Back"
+                             Command="{Binding GoBackCommand}"/>
+        </ContentPage.ToolbarItems>
+
+        <StackLayout Spacing="20">
+                <Entry Placeholder="Enter website name"
+                       Text="{Binding Name}"
+                       Margin="0,0,0,10"/>
+
+                <Entry Placeholder="Enter website URL"
+                       Text="{Binding Url}"
+                       Margin="0,0,0,10"/>
+
+                <Editor Placeholder="Enter notes"
+                        Text="{Binding Note}"
+                        AutoSize="TextChanges"
+                        HeightRequest="100"
+                        Margin="0,0,0,10"/>
+
+                <Button Text="Save"
+                        Command="{Binding SaveCommand}"
+                        BackgroundColor="Blue"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="50"/>
+
+                <Button Text="Delete"
+                        Command="{Binding DeleteCommand}"
+                        BackgroundColor="Red"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="50"
+                        IsVisible="{Binding IsEditMode}"/>
+        </StackLayout>
 
 </ContentPage>

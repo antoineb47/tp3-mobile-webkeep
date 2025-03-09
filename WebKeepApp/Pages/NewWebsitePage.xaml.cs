@@ -9,6 +9,5 @@ public partial class NewWebsitePage : ContentPage
     {
         InitializeComponent();
         BindingContext = newWebsiteViewModel;
-        DLogger.Log("NewWebsitePage constructor called");
     }
 }

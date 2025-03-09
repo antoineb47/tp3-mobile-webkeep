@@ -83,9 +83,10 @@ namespace WebKeepApp.ViewModels
         {
             var filtered = string.IsNullOrWhiteSpace(SearchText)
                 ? allWebsites
-                : [.. allWebsites.Where(w =>
+                : allWebsites.Where(w =>
                     (!string.IsNullOrEmpty(w.Name) && w.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrEmpty(w.Url) && w.Url.Contains(SearchText, StringComparison.OrdinalIgnoreCase)))];
+                    (!string.IsNullOrEmpty(w.Url) && w.Url.Contains(SearchText, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
 
             Websites.Clear();
             foreach (var website in filtered)
@@ -100,11 +101,11 @@ namespace WebKeepApp.ViewModels
             try
             {
                 var user = await _loginService.GetLoggedUserAsync() ?? throw new InvalidOperationException("User is not logged in.");
-                await Shell.Current.GoToAsync("AddWebsitePage");
+                await Shell.Current.GoToAsync("///NewWebsitePage");
             }
             catch (Exception ex)
             {
-                DLogger.Log($"Error navigating to AddWebsitePage: {ex.Message}");
+                DLogger.Log($"Error navigating to NewWebsitePage: {ex.Message}");
             }
         }
 
@@ -141,6 +142,37 @@ namespace WebKeepApp.ViewModels
             catch (Exception ex)
             {
                 DLogger.Log($"Error during search: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private async Task ShowOptionsAsync(Website website)
+        {
+            try
+            {
+                var result = await Shell.Current.DisplayAlert("Options", "Choose an option", "Go to Website", "Edit Website");
+
+                if (result)
+                {
+                    DLogger.Log($"Opening URL in Chrome: {website.Url}");
+                    if (!string.IsNullOrEmpty(website.Url))
+                    {
+                        await _websiteService.OpenWebsiteInChromeAsync(website.Url);
+                    }
+                    else
+                    {
+                        DLogger.Log("Website URL is null or empty.");
+                    }
+                }
+                else
+                {
+                    DLogger.Log($"Navigating to NewWebsitePage for editing: {website.Id}");
+                    await Shell.Current.GoToAsync($"///NewWebsitePage?websiteId={website.Id}&mode=Edit");
+                }
+            }
+            catch (Exception ex)
+            {
+                DLogger.Log($"Error showing options: {ex.Message}");
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace WebKeepApp;
+﻿namespace WebKeepApp.Pages;
 
 public partial class AppShell : Shell
 {

@@ -167,7 +167,7 @@ namespace WebKeepApp.Services
 
         private async Task ClearLoggedInUserAsync()
         {
-            SecureStorage.Remove(_authTokenKey);
+            await Task.Run(() => SecureStorage.Remove(_authTokenKey));
             LoggedUser = null;
         }
 
@@ -191,20 +191,6 @@ namespace WebKeepApp.Services
             return users.FirstOrDefault(u =>
                 u.Username != null && u.Username.Equals(username, StringComparison.OrdinalIgnoreCase) &&
                 u.Password == password);
-        }
-
-        private async Task<bool> IsLoggedInAsync()
-        {
-            try
-            {
-                var authToken = await SecureStorage.GetAsync(_authTokenKey);
-                return !string.IsNullOrEmpty(authToken);
-            }
-            catch (Exception ex)
-            {
-                DLogger.Log($"An error occurred while checking if user is logged in: {ex.Message}");
-                return false;
-            }
         }
     }
 }
