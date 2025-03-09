@@ -2,44 +2,103 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="WebKeepApp.Pages.NewWebsitePage"
-             BackgroundColor="White"
-             Padding="20">
+             Title="{Binding PageTitle}"
+             BackgroundColor="{StaticResource BackgroundColorDark}">
 
-        <StackLayout Spacing="20">
+        <ScrollView>
+                <Grid Padding="20"
+                      VerticalOptions="Start">
+                        <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                <Label Text="{Binding PageTitle}"
-                       FontSize="24"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"/>
+                        <!-- Header -->
+                        <Label Grid.Row="0"
+                               Text="{Binding PageTitle}"
+                               Style="{StaticResource SubTitleLabel}"
+                               TextColor="{StaticResource TextPrimaryColorDark}"
+                               Margin="0,10,0,15"/>
 
-                <Entry Placeholder="Enter website name"
-                       Text="{Binding Name}"
-                       Margin="0,0,0,10"/>
+                        <!-- Form Content -->
+                        <Border Grid.Row="1"
+                                Style="{StaticResource CardBorder}"
+                                BackgroundColor="{StaticResource CardColorDark}"
+                                Stroke="{StaticResource BorderColorDark}"
+                                Padding="15">
+                                <VerticalStackLayout Spacing="16">
+                                        <!-- Website Name -->
+                                        <VerticalStackLayout Spacing="4">
+                                                <Label Text="Website Name"
+                                                       Style="{StaticResource BodyLabel}"
+                                                       TextColor="{StaticResource TextSecondaryColorDark}"/>
+                                                <Entry Text="{Binding Name}"
+                                                       Placeholder="Enter website name"
+                                                       Style="{StaticResource SearchEntry}"
+                                                       BackgroundColor="{StaticResource SurfaceColorDark}"
+                                                       TextColor="{StaticResource TextPrimaryColorDark}"
+                                                       PlaceholderColor="{StaticResource TextTertiaryColorDark}"
+                                                       Margin="0"
+                                                       HeightRequest="45"/>
+                                        </VerticalStackLayout>
 
-                <Entry Placeholder="Enter website URL"
-                       Text="{Binding Url}"
-                       Margin="0,0,0,10"/>
+                                        <!-- Website URL -->
+                                        <VerticalStackLayout Spacing="4">
+                                                <Label Text="Website URL"
+                                                       Style="{StaticResource BodyLabel}"
+                                                       TextColor="{StaticResource TextSecondaryColorDark}"/>
+                                                <Entry Text="{Binding Url}"
+                                                       Placeholder="www.example.com"
+                                                       Style="{StaticResource SearchEntry}"
+                                                       BackgroundColor="{StaticResource SurfaceColorDark}"
+                                                       TextColor="{StaticResource TextPrimaryColorDark}"
+                                                       PlaceholderColor="{StaticResource TextTertiaryColorDark}"
+                                                       Margin="0"
+                                                       HeightRequest="45"/>
+                                        </VerticalStackLayout>
 
-                <Editor Placeholder="Enter notes"
-                        Text="{Binding Note}"
-                        AutoSize="TextChanges"
-                        HeightRequest="100"
-                        Margin="0,0,0,10"/>
+                                        <!-- Notes -->
+                                        <VerticalStackLayout Spacing="4">
+                                                <Label Text="Notes"
+                                                       Style="{StaticResource BodyLabel}"
+                                                       TextColor="{StaticResource TextSecondaryColorDark}"/>
+                                                <Editor Text="{Binding Note}"
+                                                        Placeholder="Add optional notes"
+                                                        BackgroundColor="{StaticResource SurfaceColorDark}"
+                                                        TextColor="{StaticResource TextPrimaryColorDark}"
+                                                        PlaceholderColor="{StaticResource TextTertiaryColorDark}"
+                                                        AutoSize="TextChanges"
+                                                        Margin="0"
+                                                        HeightRequest="100"/>
+                                        </VerticalStackLayout>
+                                </VerticalStackLayout>
+                        </Border>
 
-                <Button Text="Save"
-                        Command="{Binding SaveCommand}"
-                        BackgroundColor="Blue"
-                        TextColor="White"
-                        CornerRadius="10"
-                        HeightRequest="50"/>
+                        <!-- Action Buttons -->
+                        <VerticalStackLayout Grid.Row="2"
+                                             Spacing="10"
+                                             Margin="0,15,0,20">
+                                <Button Text="Save"
+                                        Command="{Binding SaveCommand}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        BackgroundColor="{StaticResource PrimaryColorDark}"
+                                        TextColor="{StaticResource PrimaryDarkText}"/>
 
-                <Button Text="Delete"
-                        Command="{Binding DeleteCommand}"
-                        BackgroundColor="Red"
-                        TextColor="White"
-                        CornerRadius="10"
-                        HeightRequest="50"
-                        IsVisible="{Binding IsEditMode}"/>
-        </StackLayout>
+                                <Button Text="Back"
+                                        Command="{Binding GoBackCommand}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        TextColor="{StaticResource PrimaryColorDark}"
+                                        BorderColor="{StaticResource PrimaryColorDark}"/>
 
+                                <!-- Delete button (visible only in edit mode) -->
+                                <Button Text="Delete Website"
+                                        Command="{Binding DeleteCommand}"
+                                        Style="{StaticResource DangerButton}"
+                                        BackgroundColor="{StaticResource DangerColorDark}"
+                                        TextColor="White"
+                                        IsVisible="{Binding IsEditMode}"/>
+                        </VerticalStackLayout>
+                </Grid>
+        </ScrollView>
 </ContentPage>

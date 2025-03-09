@@ -166,7 +166,7 @@ namespace WebKeepApp.ViewModels
                 if (!healthResponse.IsSuccessStatusCode)
                 {
                     DLogger.Log("Backup service health check failed.");
-                    await _dialogService.DisplayAlertAsync("Backup", "Backup service is currently unavailable. Please try again later.", "OK");
+                    await _dialogService.DisplayAlertAsync("Backup", "Backup service is currently unavailable. Please check the backup server and try again later.", "OK");
                     return;
                 }
 
@@ -179,6 +179,7 @@ namespace WebKeepApp.ViewModels
             catch (Exception ex)
             {
                 DLogger.Log($"Error during backup: {ex.Message}");
+                await _dialogService.DisplayAlertAsync("Backup", "An error occurred during backup. Please check the backup server and try again later.", "OK");
             }
         }
 

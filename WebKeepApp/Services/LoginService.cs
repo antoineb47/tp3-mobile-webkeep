@@ -21,7 +21,15 @@ namespace WebKeepApp.Services
             try
             {
                 var listUsers = await _databaseService.GetUsersAsync();
-                var user = listUsers.FirstOrDefault() ?? throw new InvalidOperationException("Sample user not found");
+                if (listUsers == null || listUsers.Count == 0)
+                {
+                    throw new InvalidOperationException("Sample user not found");
+                }
+
+                var random = new Random();
+                int index = random.Next(listUsers.Count);
+                var user = listUsers[index];
+
                 DLogger.Log($"User found: {user.Id}, {user.Username}, {user.Password}");
                 return user;
             }

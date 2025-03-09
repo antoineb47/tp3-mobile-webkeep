@@ -1,0 +1,50 @@
+[
+  {
+    "userId": 3,
+    "id": "61dc9544-ba7c-443d-a36e-90b6ab51b6d2",
+    "name": "gus.biz",
+    "url": "https://wendell.biz",
+    "note": "Natus qui omnis.",
+    "dateCreatedAt": "2025-03-09T06:45:31.64"
+  },
+  {
+    "userId": 3,
+    "id": "0d77ec06-aee7-48aa-9393-f47b0aba4827",
+    "name": "samanta.com",
+    "url": "https://nona.info",
+    "note": "Dolorem id incidunt.",
+    "dateCreatedAt": "2025-03-09T06:45:31.641"
+  },
+  {
+    "userId": 3,
+    "id": "5f544faf-e594-4306-b519-6e51d722a0ec",
+    "name": "karianne.org",
+    "url": "https://sim.info",
+    "note": "Adipisci ea aut officia qui.",
+    "dateCreatedAt": "2025-03-09T06:45:31.641"
+  },
+  {
+    "userId": 3,
+    "id": "5011fbda-a270-4b4c-ab0f-f560b393f2ec",
+    "name": "nasir.biz",
+    "url": "https://sterling.biz",
+    "note": "Quod qui magnam aut quisquam eveniet quam impedit explicabo ducimus.",
+    "dateCreatedAt": "2025-03-09T06:45:31.641"
+  },
+  {
+    "userId": 3,
+    "id": "a94270ea-17b3-40d3-9e31-68875cd5677c",
+    "name": "ignatius.net",
+    "url": "https://queenie.biz",
+    "note": "Optio necessitatibus ut fugiat.",
+    "dateCreatedAt": "2025-03-09T06:45:31.641"
+  },
+  {
+    "userId": 3,
+    "id": "ea056605-f779-4ca2-92ed-c38dc709ba79",
+    "name": "arden.info",
+    "url": "https://lenore.info",
+    "note": "Dolore modi ex perspiciatis aliquid aut.",
+    "dateCreatedAt": "2025-03-09T06:45:31.642"
+  }
+]

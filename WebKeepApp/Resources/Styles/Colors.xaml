@@ -28,43 +28,78 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
-    <!-- Light Theme Colors -->
-    <Color x:Key="PrimaryColor">#0078D7</Color>
-    <Color x:Key="SecondaryColor">#57A9FF</Color>
-    <Color x:Key="TertiaryColor">#B0D4FF</Color>
+    <!-- Modern Grey/Yellow Theme -->
+
+    <!-- Primary Colors -->
+    <Color x:Key="PrimaryColor">#FFD100</Color>
+    <!-- Bright Yellow -->
+    <Color x:Key="SecondaryColor">#FFDC4A</Color>
+    <!-- Light Yellow -->
+    <Color x:Key="TertiaryColor">#C7A500</Color>
+    <!-- Dark Yellow -->
     <Color x:Key="NeutralColor">#707070</Color>
+    <!-- Mid Grey -->
 
-    <Color x:Key="DangerColor">#D13438</Color>
+    <!-- Semantic Colors -->
+    <Color x:Key="DangerColor">#FF453A</Color>
+    <!-- Red -->
     <Color x:Key="WarningColor">#FFB900</Color>
-    <Color x:Key="SuccessColor">#107C10</Color>
+    <!-- Amber -->
+    <Color x:Key="SuccessColor">#00CC6A</Color>
+    <!-- Green -->
 
-    <Color x:Key="BackgroundColor">White</Color>
-    <Color x:Key="SurfaceColor">#F5F5F5</Color>
-    <Color x:Key="CardColor">White</Color>
-    <Color x:Key="BorderColor">#E0E0E0</Color>
+    <!-- Background Colors - Lighter Grey Tones -->
+    <Color x:Key="BackgroundColor">#202020</Color>
+    <!-- Medium-Dark Grey (lighter than before) -->
+    <Color x:Key="SurfaceColor">#2A2A2A</Color>
+    <!-- Medium Grey -->
+    <Color x:Key="CardColor">#383838</Color>
+    <!-- Medium-Light Grey -->
+    <Color x:Key="BorderColor">#4A4A4A</Color>
+    <!-- Light Grey -->
 
-    <Color x:Key="TextPrimaryColor">#212121</Color>
-    <Color x:Key="TextSecondaryColor">#666666</Color>
+    <!-- Text Colors -->
+    <Color x:Key="TextPrimaryColor">#FFFFFF</Color>
+    <!-- White -->
+    <Color x:Key="TextSecondaryColor">#CCCCCC</Color>
+    <!-- Light Grey -->
     <Color x:Key="TextTertiaryColor">#999999</Color>
+    <!-- Medium-Light Grey -->
 
-    <!-- Dark Theme Colors -->
-    <Color x:Key="PrimaryColorDark">#58A6FF</Color>
-    <Color x:Key="SecondaryColorDark">#0078D7</Color>
-    <Color x:Key="TertiaryColorDark">#004C87</Color>
-    <Color x:Key="NeutralColorDark">#999999</Color>
+    <!-- Dark Theme Colors (for consistency) -->
+    <Color x:Key="PrimaryColorDark">#FFD100</Color>
+    <!-- Same Yellow -->
+    <Color x:Key="SecondaryColorDark">#FFDC4A</Color>
+    <!-- Light Yellow -->
+    <Color x:Key="TertiaryColorDark">#C7A500</Color>
+    <!-- Dark Yellow -->
+    <Color x:Key="NeutralColorDark">#707070</Color>
+    <!-- Mid Grey -->
 
-    <Color x:Key="DangerColorDark">#F14955</Color>
-    <Color x:Key="WarningColorDark">#FFCB4B</Color>
-    <Color x:Key="SuccessColorDark">#16C60C</Color>
+    <Color x:Key="DangerColorDark">#FF453A</Color>
+    <!-- Red -->
+    <Color x:Key="WarningColorDark">#FFB900</Color>
+    <!-- Amber -->
+    <Color x:Key="SuccessColorDark">#00CC6A</Color>
+    <!-- Green -->
 
-    <Color x:Key="BackgroundColorDark">#1E1E1E</Color>
-    <Color x:Key="SurfaceColorDark">#2D2D2D</Color>
-    <Color x:Key="CardColorDark">#333333</Color>
-    <Color x:Key="BorderColorDark">#444444</Color>
+    <!-- Dark Theme Background Colors - Same Lighter Grey Tones -->
+    <Color x:Key="BackgroundColorDark">#202020</Color>
+    <!-- Medium-Dark Grey -->
+    <Color x:Key="SurfaceColorDark">#2A2A2A</Color>
+    <!-- Medium Grey -->
+    <Color x:Key="CardColorDark">#383838</Color>
+    <!-- Medium-Light Grey -->
+    <Color x:Key="BorderColorDark">#4A4A4A</Color>
+    <!-- Light Grey -->
 
-    <Color x:Key="TextPrimaryColorDark">White</Color>
+    <Color x:Key="TextPrimaryColorDark">#FFFFFF</Color>
+    <!-- White -->
     <Color x:Key="TextSecondaryColorDark">#CCCCCC</Color>
+    <!-- Light Grey -->
     <Color x:Key="TextTertiaryColorDark">#999999</Color>
+    <!-- Medium-Light Grey -->
+
 
     <SolidColorBrush x:Key="PrimaryBrush"
                      Color="{StaticResource Primary}"/>

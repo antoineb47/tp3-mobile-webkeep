@@ -4,96 +4,110 @@
              xmlns:vm="clr-namespace:WebKeepApp.ViewModels"
              x:Class="WebKeepApp.Pages.LoginPage"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundColor}, Dark={StaticResource BackgroundColorDark}}">
+             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundColorDark}, Dark={StaticResource BackgroundColorDark}}">
 
-       <Grid Padding="20">
-              <Grid.RowDefinitions>
-                     <RowDefinition Height="Auto"/>
-                     <RowDefinition Height="*"/>
-                     <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
+       <ScrollView>
+              <Grid Padding="20"
+                    VerticalOptions="Start">
+                     <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                     </Grid.RowDefinitions>
 
-              <!-- App Logo/Title -->
-              <VerticalStackLayout Grid.Row="0"
-                                   Margin="0,40,0,0"
-                                   Spacing="16"
-                                   HorizontalOptions="Center">
-                     <Image Source="app_icon.png"
-                            HeightRequest="100"
-                            WidthRequest="100"
-                            HorizontalOptions="Center"/>
-                     <Label Text="Web Keep"
-                            Style="{StaticResource TitleLabel}"
-                            HorizontalOptions="Center"
-                            Margin="0,0,0,20"/>
-              </VerticalStackLayout>
+                     <!-- Test User Button at the top -->
+                     <Button Grid.Row="0"
+                             Text="Test User"
+                             Command="{Binding TestUserCommand}"
+                             Style="{StaticResource SecondaryButton}"
+                             TextColor="{StaticResource PrimaryColorDark}"
+                             BorderColor="{StaticResource PrimaryColorDark}"
+                             HorizontalOptions="End"
+                             WidthRequest="100"
+                             HeightRequest="40"
+                             Margin="0,5,0,0"
+                             VerticalOptions="Start"/>
 
-              <!-- Login Form -->
-              <VerticalStackLayout Grid.Row="1"
-                                   VerticalOptions="Center"
-                                   Spacing="20">
-                     <Border Style="{StaticResource CardBorder}">
-                            <VerticalStackLayout Spacing="16">
-                                   <!-- Username Field -->
-                                   <VerticalStackLayout Spacing="5">
-                                          <Label Text="Username"
-                                                 Style="{StaticResource BodyLabel}"/>
-                                          <Entry Text="{Binding Username}"
-                                                 Placeholder="Enter your username"
-                                                 Style="{StaticResource SearchEntry}"
-                                                 Margin="0"/>
-                                   </VerticalStackLayout>
+                     <!-- App Logo/Title - Positioned higher -->
+                     <VerticalStackLayout Grid.Row="0"
+                                          Margin="0,10,0,0"
+                                          Spacing="8"
+                                          HorizontalOptions="Center">
+                            <Image Source="app_icon.png"
+                                   HeightRequest="80"
+                                   WidthRequest="80"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Web Keep"
+                                   Style="{StaticResource TitleLabel}"
+                                   TextColor="{StaticResource TextPrimaryColorDark}"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="v1.0.0"
+                                   Style="{StaticResource CaptionLabel}"
+                                   TextColor="{StaticResource TextTertiaryColorDark}"
+                                   HorizontalOptions="Center"
+                                   Margin="0,0,0,5"/>
+                     </VerticalStackLayout>
 
-                                   <!-- Password Field -->
-                                   <VerticalStackLayout Spacing="5">
-                                          <Label Text="Password"
-                                                 Style="{StaticResource BodyLabel}"/>
-                                          <Entry Text="{Binding Password}"
-                                                 Placeholder="Enter your password"
-                                                 IsPassword="True"
-                                                 Style="{StaticResource SearchEntry}"
-                                                 Margin="0"/>
-                                   </VerticalStackLayout>
+                     <!-- Login Form -->
+                     <VerticalStackLayout Grid.Row="1"
+                                          VerticalOptions="Start"
+                                          Spacing="15"
+                                          Margin="0,10,0,0">
+                            <Border Style="{StaticResource CardBorder}"
+                                    BackgroundColor="{StaticResource CardColorDark}"
+                                    Stroke="{StaticResource BorderColorDark}"
+                                    Padding="15">
+                                   <VerticalStackLayout Spacing="12">
+                                          <!-- Username Field -->
+                                          <VerticalStackLayout Spacing="4">
+                                                 <Label Text="Username"
+                                                        Style="{StaticResource BodyLabel}"
+                                                        TextColor="{StaticResource TextSecondaryColorDark}"/>
+                                                 <Entry Text="{Binding Username}"
+                                                        Placeholder="Enter your username"
+                                                        Style="{StaticResource SearchEntry}"
+                                                        BackgroundColor="{StaticResource CardColorDark}"
+                                                        TextColor="{StaticResource TextPrimaryColorDark}"
+                                                        PlaceholderColor="{StaticResource TextTertiaryColorDark}"
+                                                        Margin="0"
+                                                        HeightRequest="45"/>
+                                          </VerticalStackLayout>
 
-                                   <!-- Remember Me -->
-                                   <HorizontalStackLayout HorizontalOptions="Start">
-                                          <CheckBox IsChecked="{Binding RememberMe}"
-                                                    VerticalOptions="Center"/>
-                                          <Label Text="Remember me"
+                                          <!-- Password Field -->
+                                          <VerticalStackLayout Spacing="4">
+                                                 <Label Text="Password"
+                                                        Style="{StaticResource BodyLabel}"
+                                                        TextColor="{StaticResource TextSecondaryColorDark}"/>
+                                                 <Entry Text="{Binding Password}"
+                                                        Placeholder="Enter your password"
+                                                        IsPassword="True"
+                                                        Style="{StaticResource SearchEntry}"
+                                                        BackgroundColor="{StaticResource CardColorDark}"
+                                                        TextColor="{StaticResource TextPrimaryColorDark}"
+                                                        PlaceholderColor="{StaticResource TextTertiaryColorDark}"
+                                                        Margin="0"
+                                                        HeightRequest="45"/>
+                                          </VerticalStackLayout>
+
+                                          <!-- Error Message -->
+                                          <Label Text="{Binding ErrorMessage}"
                                                  Style="{StaticResource CaptionLabel}"
-                                                 VerticalOptions="Center"/>
-                                   </HorizontalStackLayout>
+                                                 TextColor="{StaticResource DangerColorDark}"
+                                                 IsVisible="{Binding HasError}"/>
+                                   </VerticalStackLayout>
+                            </Border>
+                     </VerticalStackLayout>
 
-                                   <!-- Error Message -->
-                                   <Label Text="{Binding ErrorMessage}"
-                                          Style="{StaticResource CaptionLabel}"
-                                          TextColor="{AppThemeBinding Light={StaticResource DangerColor}, Dark={StaticResource DangerColorDark}}"
-                                          IsVisible="{Binding HasError}"/>
-                            </VerticalStackLayout>
-                     </Border>
-              </VerticalStackLayout>
-
-              <!-- Action Buttons -->
-              <VerticalStackLayout Grid.Row="2"
-                                   Spacing="10"
-                                   Margin="0,0,0,30">
-                     <Button Text="Sign In"
-                             Command="{Binding LoginCommand}"
-                             Style="{StaticResource PrimaryButton}"/>
-
-                     <Button Text="Create Account"
-                             Command="{Binding RegisterCommand}"
-                             Style="{StaticResource SecondaryButton}"/>
-
-                     <Label Text="Forgot password?"
-                            Style="{StaticResource CaptionLabel}"
-                            TextColor="{AppThemeBinding Light={StaticResource PrimaryColor}, Dark={StaticResource PrimaryColorDark}}"
-                            HorizontalOptions="Center"
-                            Margin="0,10,0,0">
-                            <Label.GestureRecognizers>
-                                   <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}"/>
-                            </Label.GestureRecognizers>
-                     </Label>
-              </VerticalStackLayout>
-       </Grid>
+                     <!-- Login Button -->
+                     <VerticalStackLayout Grid.Row="2"
+                                          Spacing="10"
+                                          Margin="0,15,0,20">
+                            <Button Text="Login"
+                                    Command="{Binding LoginCommand}"
+                                    Style="{StaticResource PrimaryButton}"
+                                    BackgroundColor="{StaticResource PrimaryColorDark}"
+                                    TextColor="Black"/>
+                     </VerticalStackLayout>
+              </Grid>
+       </ScrollView>
 </ContentPage>
