@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace BackupServer.Models
 {
@@ -6,6 +7,7 @@ namespace BackupServer.Models
     {
         public int UserId { get; set; }
 
+        [JsonPropertyName("id")]
         public Guid WebsiteId { get; set; }
 
         public string? Name { get; set; }

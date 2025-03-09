@@ -4,6 +4,7 @@
              xmlns:vm="clr-namespace:WebKeepApp.ViewModels"
              x:Class="WebKeepApp.Pages.MainPage"
              Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundColor}, Dark={StaticResource BackgroundColorDark}}"
              Title="Home">
 
     <Grid Padding="20"
@@ -16,8 +17,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header Row -->
-        <Grid Grid.Row="0"
-              VerticalOptions="Center">
+        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -28,36 +28,31 @@
                                  Spacing="6"
                                  VerticalOptions="Center">
                 <Label Text="Welcome"
-                       FontSize="20"
-                       FontAttributes="Bold"
+                       Style="{StaticResource SubTitleLabel}"
                        Margin="0,0,0,2"/>
                 <Label Text="{Binding Username}"
-                       FontSize="16"
-                       TextColor="Gray"/>
+                       Style="{StaticResource BodyLabel}"/>
             </VerticalStackLayout>
 
             <Button Grid.Column="1"
                     Text="Add"
                     Command="{Binding AddWebsiteCommand}"
                     Margin="15,0"
-                    WidthRequest="85"
-                    HeightRequest="45"
-                    CornerRadius="8"/>
+                    Style="{StaticResource PrimaryButton}"
+                    WidthRequest="85"/>
 
             <Button Grid.Column="2"
                     Text="Logout"
                     Command="{Binding LogoutCommand}"
-                    WidthRequest="85"
-                    HeightRequest="45"
-                    CornerRadius="8"/>
+                    Style="{StaticResource SecondaryButton}"
+                    WidthRequest="85"/>
         </Grid>
 
         <Button Grid.Row="1"
                 Grid.ColumnSpan="3"
                 Text="Backup Data"
                 Command="{Binding BackupCommand}"
-                HeightRequest="45"
-                CornerRadius="8"/>
+                Style="{StaticResource PrimaryButton}"/>
 
         <!-- Search Bar -->
         <Entry Grid.Row="2"
@@ -65,9 +60,7 @@
                Placeholder="Search websites..."
                Text="{Binding SearchText}"
                ReturnCommand="{Binding SearchCommand}"
-               Margin="0,5,0,10"
-               HeightRequest="50"
-               FontSize="16"/>
+               Style="{StaticResource SearchEntry}"/>
 
         <!-- Websites List -->
         <CollectionView Grid.Row="3"
@@ -75,10 +68,7 @@
                         Margin="0,5">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border Margin="0,8"
-                            Padding="18"
-                            StrokeShape="RoundRectangle 12"
-                            BackgroundColor="{AppThemeBinding Light=White, Dark=#333333}">
+                    <Border Style="{StaticResource CardBorder}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=ShowOptionsCommand}"
                                                   CommandParameter="{Binding .}"/>
@@ -97,15 +87,13 @@
                             <Label Grid.Row="0"
                                    Grid.Column="0"
                                    Text="{Binding Name}"
-                                   FontSize="19"
-                                   FontAttributes="Bold"/>
+                                   Style="{StaticResource SubTitleLabel}"/>
 
                             <!-- Creation Date -->
                             <Label Grid.Row="0"
                                    Grid.Column="1"
                                    Text="{Binding DateCreatedAt, StringFormat='{0:d}'}"
-                                   FontSize="14"
-                                   TextColor="Gray"
+                                   Style="{StaticResource CaptionLabel}"
                                    Margin="0,0,0,2"
                                    VerticalOptions="Center"/>
 
@@ -114,8 +102,7 @@
                                    Grid.Column="0"
                                    Grid.ColumnSpan="2"
                                    Text="{Binding Url}"
-                                   FontSize="16"
-                                   TextColor="Gray"/>
+                                   Style="{StaticResource BodyLabel}"/>
                         </Grid>
                     </Border>
                 </DataTemplate>
@@ -124,7 +111,7 @@
             <CollectionView.EmptyView>
                 <Grid>
                     <Label Text="No websites found"
-                           FontSize="18"
+                           Style="{StaticResource BodyLabel}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
                 </Grid>

@@ -152,7 +152,6 @@ namespace WebKeepApp.ViewModels
                 DLogger.Log($"Error during search: {ex.Message}");
             }
         }
-
         [RelayCommand]
         private async Task BackupAsync()
         {
@@ -160,6 +159,16 @@ namespace WebKeepApp.ViewModels
             {
                 bool confirm = await _dialogService.DisplayConfirmAsync("Backup", "Do you want to backup your data?", "Yes", "No");
                 if (!confirm) return;
+
+                // Perform the backup service healthcheck first
+                DLogger.Log("Performing backup service healthcheck...");
+                var healthResponse = await _backupService.HealthCheckAsync();
+                if (!healthResponse.IsSuccessStatusCode)
+                {
+                    DLogger.Log("Backup service health check failed.");
+                    await _dialogService.DisplayAlertAsync("Backup", "Backup service is currently unavailable. Please try again later.", "OK");
+                    return;
+                }
 
                 DLogger.Log("Backing up data...");
                 await _backupService.BackupUserDataAsync(user.Id);

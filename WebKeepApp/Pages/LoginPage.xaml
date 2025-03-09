@@ -1,49 +1,99 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WebKeepApp.ViewModels"
              x:Class="WebKeepApp.Pages.LoginPage"
-             BackgroundColor="White"
-             Padding="20"
-             Title="Login">
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundColor}, Dark={StaticResource BackgroundColorDark}}">
 
-       <Grid VerticalOptions="Center"
-             HorizontalOptions="Center">
+       <Grid Padding="20">
               <Grid.RowDefinitions>
                      <RowDefinition Height="Auto"/>
-                     <RowDefinition Height="Auto"/>
-                     <RowDefinition Height="Auto"/>
-                     <RowDefinition Height="Auto"/>
-                     <RowDefinition Height="Auto"/>
+                     <RowDefinition Height="*"/>
                      <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
-              <Label Text="WebKeep"
-                     FontSize="36"
-                     FontAttributes="Bold"
-                     HorizontalOptions="Center"
-                     Grid.Row="0"
-                     Margin="0,0,0,20"/>
-              <Entry Placeholder="Enter your username"
-                     Text="{Binding Username}"
-                     Grid.Row="1"
-                     Margin="0,0,0,10"/>
-              <Entry Placeholder="Enter your password"
-                     IsPassword="True"
-                     Text="{Binding Password}"
-                     Grid.Row="2"
-                     Margin="0,0,0,20"/>
-              <Label Text="{Binding ErrorMessage}"
-                     TextColor="Red"
-                     FontSize="14"
-                     HorizontalOptions="Center"
-                     Grid.Row="3"
-                     Margin="0,0,0,10"/>
-              <Button Text="Login"
-                      Command="{Binding LoginCommand}"
-                      Grid.Row="4"
-                      Margin="0,0,0,10"/>
-              <Button Text="Test User"
-                      Command="{Binding TestUserCommand}"
-                      Grid.Row="5"/>
-       </Grid>
 
+              <!-- App Logo/Title -->
+              <VerticalStackLayout Grid.Row="0"
+                                   Margin="0,40,0,0"
+                                   Spacing="16"
+                                   HorizontalOptions="Center">
+                     <Image Source="app_icon.png"
+                            HeightRequest="100"
+                            WidthRequest="100"
+                            HorizontalOptions="Center"/>
+                     <Label Text="Web Keep"
+                            Style="{StaticResource TitleLabel}"
+                            HorizontalOptions="Center"
+                            Margin="0,0,0,20"/>
+              </VerticalStackLayout>
+
+              <!-- Login Form -->
+              <VerticalStackLayout Grid.Row="1"
+                                   VerticalOptions="Center"
+                                   Spacing="20">
+                     <Border Style="{StaticResource CardBorder}">
+                            <VerticalStackLayout Spacing="16">
+                                   <!-- Username Field -->
+                                   <VerticalStackLayout Spacing="5">
+                                          <Label Text="Username"
+                                                 Style="{StaticResource BodyLabel}"/>
+                                          <Entry Text="{Binding Username}"
+                                                 Placeholder="Enter your username"
+                                                 Style="{StaticResource SearchEntry}"
+                                                 Margin="0"/>
+                                   </VerticalStackLayout>
+
+                                   <!-- Password Field -->
+                                   <VerticalStackLayout Spacing="5">
+                                          <Label Text="Password"
+                                                 Style="{StaticResource BodyLabel}"/>
+                                          <Entry Text="{Binding Password}"
+                                                 Placeholder="Enter your password"
+                                                 IsPassword="True"
+                                                 Style="{StaticResource SearchEntry}"
+                                                 Margin="0"/>
+                                   </VerticalStackLayout>
+
+                                   <!-- Remember Me -->
+                                   <HorizontalStackLayout HorizontalOptions="Start">
+                                          <CheckBox IsChecked="{Binding RememberMe}"
+                                                    VerticalOptions="Center"/>
+                                          <Label Text="Remember me"
+                                                 Style="{StaticResource CaptionLabel}"
+                                                 VerticalOptions="Center"/>
+                                   </HorizontalStackLayout>
+
+                                   <!-- Error Message -->
+                                   <Label Text="{Binding ErrorMessage}"
+                                          Style="{StaticResource CaptionLabel}"
+                                          TextColor="{AppThemeBinding Light={StaticResource DangerColor}, Dark={StaticResource DangerColorDark}}"
+                                          IsVisible="{Binding HasError}"/>
+                            </VerticalStackLayout>
+                     </Border>
+              </VerticalStackLayout>
+
+              <!-- Action Buttons -->
+              <VerticalStackLayout Grid.Row="2"
+                                   Spacing="10"
+                                   Margin="0,0,0,30">
+                     <Button Text="Sign In"
+                             Command="{Binding LoginCommand}"
+                             Style="{StaticResource PrimaryButton}"/>
+
+                     <Button Text="Create Account"
+                             Command="{Binding RegisterCommand}"
+                             Style="{StaticResource SecondaryButton}"/>
+
+                     <Label Text="Forgot password?"
+                            Style="{StaticResource CaptionLabel}"
+                            TextColor="{AppThemeBinding Light={StaticResource PrimaryColor}, Dark={StaticResource PrimaryColorDark}}"
+                            HorizontalOptions="Center"
+                            Margin="0,10,0,0">
+                            <Label.GestureRecognizers>
+                                   <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}"/>
+                            </Label.GestureRecognizers>
+                     </Label>
+              </VerticalStackLayout>
+       </Grid>
 </ContentPage>
